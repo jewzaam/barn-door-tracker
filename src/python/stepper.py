@@ -1,27 +1,34 @@
 import RPi.GPIO as GPIO
 import time
 
+debug = True
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 enable_pin = 18
 
 # Order in datasheet: orange, yellow, pink, blue, red (always 0)
 # https://components101.com/motors/28byj-48-stepper-motor
-coil_A_1_pin = 17 # orange
-coil_A_2_pin = 24 # yellow
-coil_B_1_pin = 4 # pink
-coil_B_2_pin = 23 # blue
 
-motor_step_angle=5.625 # degrees per step
-motor_gear_ratio=64 # 64:1
-motor_steps_per_rev = 360/motor_step_angle * motor_gear_ratio;
+# pins in order per data sheet: orange, yellow, pink, blue
+Pins = [17,24,4,23]
+
+# datasheet has stride angle at 5.625, but this is not quite right.
+motor_stride_angle=5.63 # degrees per step
+motor_gear_ratio=64 # 64:1 internal gear ratio (motor to shaft)
+motor_steps_per_rev = 360/motor_stride_angle * motor_gear_ratio
 
 external_gear_ratio = 10.0/43.0 # motor drives 10 tooth gear, driving 43 tooth gear
-external_steps_per_rev = motor_steps_per_rev / external_gear_ratio;
-seconds_per_step = 60.0 / external_steps_per_rev;
+external_steps_per_rev = motor_steps_per_rev / external_gear_ratio
+
+# goal is 1 rev per minute.  could adjust to be flexible if needed by adding a param for the seconds
+seconds_per_step = 60.0 / external_steps_per_rev
+ms_per_step = seconds_per_step * 1000.0
+
+tested_initial_delay_ms=3.3
 
 # adjust if different
-Seq = [
+Sequence = [
     [1,0,0,0],
     [1,1,0,0],
     [0,1,0,0],
@@ -31,47 +38,95 @@ Seq = [
     [0,0,0,1],
     [1,0,0,1],
 ]
-StepCount = len(Seq)
+SequenceCount = len(Sequence)
 
-GPIO.setup(enable_pin, GPIO.OUT)
+def startup():
+    GPIO.setup(enable_pin, GPIO.OUT)
+    for pin in Pins:
+        GPIO.setup(pin, GPIO.OUT)
+    # go ahead and turn on power
+    GPIO.output(enable_pin, 1)
 
-GPIO.setup(coil_A_1_pin, GPIO.OUT)
-GPIO.setup(coil_A_2_pin, GPIO.OUT)
-GPIO.setup(coil_B_1_pin, GPIO.OUT)
-GPIO.setup(coil_B_2_pin, GPIO.OUT)
+def shutdown():
+    for pin in Pins:
+        GPIO.output(pin, 0)
+    GPIO.output(enable_pin, 0)
 
-GPIO.output(enable_pin, 1)
+def setOutput(values):
+    for i in range(len(Pins)):
+        GPIO.output(Pins[i], values[i])
 
-def setStep(w1, w2, w3, w4):
-    GPIO.output(coil_A_1_pin, w1)
-    GPIO.output(coil_A_2_pin, w2)
-    GPIO.output(coil_B_1_pin, w3)
-    GPIO.output(coil_B_2_pin, w4)
+def calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms,end_time_ms):
+    calibrated_delay_ms = step_delay_ms
+    actual_duration_ms = end_time_ms - start_time_ms
+    
+    # how far off is the actual from expected:
+    calibration_factor = actual_duration_ms / expected_duration_ms
 
-def forward(seconds):
-    delay = seconds_per_step;
-    steps = int(seconds / seconds_per_step / StepCount);
-    print(str(steps))
-    for i in range(steps):
-        for j in range(StepCount):
-            setStep(Seq[j][0], Seq[j][1], Seq[j][2], Seq[j][3])
-            time.sleep(delay)
-    setStep(0,0,0,0)
+    # pick new delay...
+    calculated_delay_ms = step_delay_ms / calibration_factor
 
-def backwards(seconds):
-    delay = seconds_per_step;
-    steps = int(seconds_per_step * seconds / StepCount);
-    for i in range(steps):
-        for j in reversed(range(StepCount)):
-            setStep(Seq[j][0], Seq[j][1], Seq[j][2], Seq[j][3])
-            time.sleep(delay)
-    setStep(0,0,0,0)
+    # average the current delay and calculated to try to stop oscillation
+    calibrated_delay_ms = (calculated_delay_ms + step_delay_ms) / 2
+
+    if debug:
+        print("step_count: {}".format(step_count))
+        print("ahead_ms: {}".format(actual_duration_ms - expected_duration_ms))
+        print("calibration_factor: {}".format(calibration_factor))
+        print("calibrated_delay_ms: {}".format(calibrated_delay_ms))
+
+    return calibrated_delay_ms
+
+def forward():
+    # initial delay is the calculated time per step
+    step_delay_ms = tested_initial_delay_ms
+
+    # capture start time for calibration
+    start_time_ms = time.time() * 1000.0
+
+    # to minimize oscillation and get a 0.024% accuracy in my testing:
+    # * calibration is done on a short cycle
+    # * calibration step and time is reset each cycle
+    # * calibration cycle aligns with sequence (don't cut a sequence in half!)
+
+    # how many steps to use for each calibration
+    calibration_frequency = 50 * SequenceCount
+
+    calibration_start_time_ms = time.time() * 1000.0
+    step = 1
+    calibration_step = 1
+    while True:
+        setOutput(Sequence[step%SequenceCount])
+
+        if step%calibration_frequency == 0:
+            # calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms,end_time_ms):
+            expected_duration_ms = calibration_step * ms_per_step # this NEVER changes
+            now = time.time() * 1000.0
+            calibrated_delay_ms = calibrated_delay(
+                    expected_duration_ms,
+                    step_delay_ms,
+                    calibration_step,
+                    calibration_start_time_ms,
+                    now
+                )
+            # reset calibration window
+            calibration_step = step % SequenceCount
+            calibration_start_time_ms = time.time() * 1000.0
+
+            step_delay_ms = calibrated_delay_ms
+            if debug:
+                # useful overall stats for verifying calibration is doing what it should: keep the TOTAL drift (delta) down.
+                print("total_delta_ms: {}".format(now - start_time_ms - (step * ms_per_step)))
+                print("total_steps: {}".format(step))
+                print("total_time_s: {}".format((now-start_time_ms)/1000))
+
+        time.sleep(step_delay_ms/1000.0)
+        step = step + 1
+        calibration_step = calibration_step + 1
 
 if __name__ == '__main__':
-    setStep(0,0,0,0)
-    print("Delay: {}".format(seconds_per_step))
-    while True:
-        seconds = raw_input("How many seconds forward? ")
-        forward(int(seconds))
-        seconds = raw_input("How many seconds backwards? ")
-        backwards(int(seconds))
+    try:
+        startup()
+        forward()
+    finally:
+        shutdown()
