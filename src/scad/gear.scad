@@ -143,7 +143,7 @@ module nut(w,h,s=6)
     x = w * tan(T/2);
     
     // create a cube, translate to be a side, rotate, repeat
-    translate([0,0,h/2])
+    translate([0,0,h])
     union()
     {
         for (i = [0:s-1]) {
