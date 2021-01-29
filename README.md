@@ -1,3 +1,8 @@
+# WORK IN PROGRESS
+
+Some of this is accurate, some of it is being written ahead of code or model changes.  If you're seeing this header it's not 100% ready!
+
+
 # Background
 
 ## Untracked
@@ -23,6 +28,8 @@ You'll also notice that it isn't super clean.  And my experience doing this wasn
 I wanted to get a better shot and not have to manually manipulate this.  After a bit of research I settled on small stepper motor with controller driven by a Raspberry Pi I had laying around.  I have never used a stepper motor so it was a great excuse to learn even more new things.
 
 # Building the Tracker
+
+## How does it work?
 
 The first thing is to understand how the stepper works.  Actually, the first thing is to decide what stepper to use.  I selected the 28BYJ-48 stepper motor with ULN2003 driver board.  Once the parts arrived I dove in trying to understand how it works.
 
@@ -51,6 +58,140 @@ We have a stepper, and it's pretty accurate.  We just need to know what gears we
 * 1/4 inch threaded rod, 20 threads per inch
 * 1 rotation of rod's gear per minute
 
-MORE TO COME.. started it but I'm tired so will pick it up later
+Key values to know:
+* how many threads per mm for your rod
+* how far center of rod is from the pivot point
 
-The earth roughly rotates 360° / 24 hours.  For one rotation of the rod is ....
+Let's say the rod is 200mm from the pivot point.  This is a comfortable size for me to 3D print.  This is the radius (r). And there are 0.7874 threads per mm (aka 20 threads per inch).  The circumference of the circle your rod travels is 2πr = 400π = 1256.6370mm.
+
+The earth roughly rotates 360° / 24 hours, or 0.25° / minute.  Put another way, every minute the earth rotates 1 / 1440 % of the circumference of your circle.  That means every minute the rod needs to travel 0.8726mm.
+
+What we really need is the how many revolutions a nut on the rod must turn per minute.  Why a nut?  Each revolution travels the distance of one thread.  And we pick one minute simply as a reasonable time scale to work with.  The rotation speed must be enough to move the rod 0.8726mm a minute.  Given 0.7874mm per thread that works out to 1.1082 rotations in a minute.
+
+Now let's base that on the hard data.
+- rod has 20 threads per inch (20 thread / 24.5 mm)
+- radius of circle is 200 mm
+
+Rotation per minute is:
+
+(400π/1440) / (20/25.4) = 1.1082 revolutions per minute
+
+This is a very doable number!  Let's get into building...
+
+## Parts
+
+Ok, explainations..
+
+The tracker opens slowly on a hinge.  It's driven by your gears moving the threaded rod.  There are bearings at the hinge to help it be very smooth and the bolt just holds the bearings in the right place.  You attach the tracker to a tripod.  This should be sturdy.  Many tripods in the US have 3/8" bolts.  Mine has a 1/4" bolt.  You attach the camera on a separate camera mount.  I recommend a ball mount as the adjustment screws will not get in the way.  Again, in the US it's either 3/8" or 1/4".  Use the biggest you can for stability!
+
+A note on camera mounting.  This model mounts it on the side of the tracker.  This provides more flexibility for getting shots.  If you mount it on the top it's likely you'll be limited since the ball mount won't allow enough movement to point at zenith.  I don't provide an option for a top mount because of this limitation.
+
+If you are not using a 28BYJ-48 stepper motor you'll need ot adjust other parameters.  I won't get into these here.  And they're likely to be hard coded in the initial model anyway.  Sorry about that!
+
+Buy the hardware first so you can measure things!
+
+Make sure your bolt is long enough.  You want the tracker to be around 4 inches (~100mm) wide.  If it's too long it's easy to cut it shorter with a hack saw.  It's really hard to make it longer..
+
+Hardware I used that is default for the model:
+- 2 ea: 608-ZZ bearings (common for skateboards)
+- 1 ea: 5/16" x 5" hex full thread bolt
+- 1 ea: 5/16" nut
+- 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
+- 2 ea: 1/4"-20 nut
+- 4 ea: 1/4" washer
+- 2 ea: 1/4" lock washer
+- 2 ea: 1/4"-20 cap nut
+- 1 ea: 28BYJ-48 stepper motor
+- 1 ea: ULN2003 driver board
+- 1 ea: Raspberry Pi of your choice
+- 6 ea: F/F jumper wire
+
+3D printed part list:
+- 1 ea: 10 tooth stepper gear
+- 1 ea: 43 tooth rod gear
+- 1 ea: tracker top and bottom
+- 1 ea: ULN2003 case and lid
+- 1 ea: Raspberry Pi cases
+
+Store Bought Part List:
+
+### 10 tooth stepper gear
+
+I didn't create a model for this, I took one from [Barn Door tracker remix for 28byj-48 stepper](https://www.thingiverse.com/thing:2841827).  See file `astroBarnLittleGearMod2Screw.stl`.
+
+### 43 tooth rod gear
+
+File: [gear.scad](src/scad/gear.scad)
+
+The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only changing the dimensions for the rod and the nut.  You can play around with other factors but make sure you read up on terms!  I used this for reference [Gear Nomenclature](https://en.wikiversity.org/wiki/Gears#/media/File:Gearnomenclature.jpg).
+
+- shaft_diameter =  rod diameter
+- nut_width = width of the nut
+- nut_height = height of the nut
+
+## tracker top and bottom
+
+File: [tracker.scad](src/scad/tracker.scad)
+
+The important bits are the size of your print bed.  I assume a pretty big print bed, sorry.  Maybe you can provide a PR for splitting it?  I didn't want any weak points.
+
+You need to make sure your bolt will fit through the bearing!  The model does not care...
+
+- tracker_radius = how far away the center of the rod is from the hinge
+- hinge_diameter = how wide the bolt at the hinge is
+- hinge_length = how wide the hinge is, probably a bit shorter than your bolt length to allow for washers and nut
+- bearing_diameter = the hinge bearing outer diameter
+- bearing_height = height of the bearing
+- tripod_bolt_diameter = diameter of rod/bolt/whatever that attaches to the tripod
+- camera_bolt_diameter = diameter of the rod/bolt/whatever that attaches to the camera
+- rod_diameter = diameter of the threaded rod
+
+You can use the `part` parameter to get just the model for the **"top"** or **"bottom"**.
+
+## ULN2003 case and lid
+
+File: [case-uln2003.scad](src/scad/case-uln2003.scad)
+
+Shouldn't need any editing.  This is a simple case with a lid held by friction.  It has slots in the side for wires.  Mount to the tracker as you want.. glue, velcro, weld, whatever.
+
+## Raspberry Pi case
+
+Not included.  Print what you like.  Attach to tracker.
+
+# Code
+
+File: [stepper.py](src/python/stepper.py)
+
+You need to set the right pins based on how you've wired you Pi and the inputs for your hardware.
+
+- tracker_radius = how far away the center of the rod is from the hinge (same value from [tracker.scad](src/scad/tracker.scad))
+- threads_per_mm = measure of how many threads per mm on the threaded rod
+- stepper_gear_teeth = number of teeth on the gear attached to the stepper motor
+- rod_gear_teeth = number of teeth on the gear attached to the threaded rod
+
+NOTE this all assumes 28BYJ-48 stepper motor.  If you have a different stepper you need to look at the data sheet to identify:
+- how many steps per rotation of the motor shaft
+- how many coils need wired and how to wire it
+- order to activate coils (sequence)
+
+## Calibration
+
+This script is simple but not trivial.. it does a dynamic calibration of the delay between steps.  It measure actual time vs expected time and adjusts the delay between steps.  It's done the whole time the program runs.  The key is to do a pretty short sampling.  If you do a long sample it ends up oscillating, swingging wider over time from ideal.  The way it is setup right now works very well to dial in to a reasonable margin of error (0.025% or so) and keep it there.
+
+## Automatic Start
+
+You can search the web but what I did was add a crontab entry as root:
+
+```shell
+sudo crontab -e
+```
+
+And put the following at the end of the crontab:
+
+```shell
+@reboot python /home/pi/stepper.py
+```
+
+
+# Assembly
+
