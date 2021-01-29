@@ -94,34 +94,56 @@ Make sure your bolt is long enough.  You want the tracker to be around 4 inches 
 
 Hardware I used that is default for the model:
 - 2 ea: 608-ZZ bearings (common for skateboards)
+    - smooth hinge action
 - 1 ea: 5/16" x 5" hex full thread bolt
+    - holds bearings to the top plate of tracker
 - 1 ea: 5/16" nut
+    - secure the bolt for the bearings
 - 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
+    - the rod you'll bend
 - 2 ea: 1/4"-20 nut
+    - to hold rod to the top plate
 - 4 ea: 1/4" washer
-- 2 ea: 1/4" lock washer
-- 2 ea: 1/4"-20 cap nut
+    - to hold rod to the top plate
+- 2 ea: 1/4" lock washer (optional)
+    - to hold rod to the top plate
+- 2 ea: 1/4"-20 cap nut (optional)
+    - since you'll probably cut the threaded rod, provides smooth ends
 - 1 ea: M4-0.7 x 8mm set screw
+    - set screw to hold small gear to stepper
 - 1 ea: 28BYJ-48 stepper motor
+    - motor that does the work
 - 1 ea: ULN2003 driver board
+    - controls the motor based on GPIO signal
 - 1 ea: Raspberry Pi of your choice
+    - runs code that sends GPIO signal
 - 6 ea: F/F jumper wire
+    - wire the Pi to the driver board
 - 1 ea: 5V power supply for Raspberry Pi
+    - power supply for Pi (and through the Pi, the driver board + stepper)
 
 3D printed part list:
 - 1 ea: 10 tooth stepper gear
 - 1 ea: 43 tooth rod gear
+- 1 ea: bolt test
+- 1 ea: gear placement test
 - 1 ea: tracker top and bottom
 - 1 ea: ULN2003 case and lid
 - 1 ea: Raspberry Pi cases
 
 ### 10 tooth stepper gear
 
-I didn't create a model for this, I took one from [Barn Door tracker remix for 28byj-48 stepper](https://www.thingiverse.com/thing:2841827).  See file `astroBarnLittleGearMod2Screw.stl`.
+File: [tracker.scad](src/scad/tracker.scad)
+Part: **Stepper Gear**
+STL: [gear-10.stl](src/stl/gear-10.stl)
+
+Only thing you might tweak is the set screw diameter.  And, honestly, you probably don't need it if your print is tight on the shaft.
 
 ### 43 tooth rod gear
 
-File: [gear.scad](src/scad/gear.scad)
+File: [tracker.scad](src/scad/tracker.scad)
+Part: **Threaded Rod Gear**
+STL: [gear-10.stl](src/stl/gear-43.stl)
 
 The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only changing the dimensions for the rod and the nut.  You can play around with other factors but make sure you read up on terms!  I used this for reference [Gear Nomenclature](https://en.wikiversity.org/wiki/Gears#/media/File:Gearnomenclature.jpg).
 
@@ -129,9 +151,21 @@ The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only chang
 - nut_width = width of the nut
 - nut_height = height of the nut
 
-## tracker top and bottom
+### test prints
 
 File: [tracker.scad](src/scad/tracker.scad)
+Parts: **TESTER: Hardware**, **TESTER: Gears**
+STL: [TESTER-hardware.stl](src/stl/TESTER-hardware.stl), [TESTER-gears.stl](src/stl/TESTER-gears.stl)
+
+This contains two test.  One is a block that you can test the bearing and **all** threaded hardware.  The other you verify placement of gears, since the final model locks you into gear placement.
+
+Please use these before you print the full model!  This will let you know if you need to tune any parameters for final print, including gear placement.
+
+### tracker top and bottom
+
+File: [tracker.scad](src/scad/tracker.scad)
+Parts: **Tracker Top**, **Tracker Bottom**
+STL: [tracker-top.stl](src/stl/tracker-top.stl), [tracker-bottom.stl](src/stl/tracker-bottom.stl)
 
 The important bits are the size of your print bed.  I assume a pretty big print bed, sorry.  Maybe you can provide a PR for splitting it?  I didn't want any weak points.
 
@@ -148,15 +182,35 @@ You need to make sure your bolt will fit through the bearing!  The model does no
 
 You can use the `part` parameter to get just the model for the **"top"** or **"bottom"**.
 
-## ULN2003 case and lid
+### ULN2003 case and lid
 
 File: [case-uln2003.scad](src/scad/case-uln2003.scad)
 
 Shouldn't need any editing.  This is a simple case with a lid held by friction.  It has slots in the side for wires.  Mount to the tracker as you want.. glue, velcro, weld, whatever.
 
-## Raspberry Pi case
+### Raspberry Pi case
 
 Not included.  Print what you like.  Attach to tracker.
+
+## Print Order
+
+I feel it's important to know what to print in what order so you can test and tune for the final product.  I won't get into the details of any adjusments yet but this is the rough outline of what I highly **highly** recommend you do:
+
+1. Print TESTER-hardware.
+2. Verify all hardware works.  See sub-section [Using TESTER-hardware](#using-tester-hardware)
+3. If adjustments are needed, make adjustments and go back 2 steps (print TESTER-hardware again)
+4. Print gears.
+5. Print TESTER-gears.
+6. Verify gears fit on tester.  See sub-section [Using TESTER-gears](#using-tester-gears)
+7. If adjustments are needed, make adjustments and go back 2 steps (print TESTER-gears again)
+9. Print tracker top and bottom.
+10. [Assemble!](#assembly)
+
+### Using TESTER
+
+# Assembly
+
+
 
 # Code
 
