@@ -101,10 +101,12 @@ Hardware I used that is default for the model:
 - 4 ea: 1/4" washer
 - 2 ea: 1/4" lock washer
 - 2 ea: 1/4"-20 cap nut
+- 1 ea: M4-0.7 x 8mm set screw
 - 1 ea: 28BYJ-48 stepper motor
 - 1 ea: ULN2003 driver board
 - 1 ea: Raspberry Pi of your choice
 - 6 ea: F/F jumper wire
+- 1 ea: 5V power supply for Raspberry Pi
 
 3D printed part list:
 - 1 ea: 10 tooth stepper gear
@@ -112,8 +114,6 @@ Hardware I used that is default for the model:
 - 1 ea: tracker top and bottom
 - 1 ea: ULN2003 case and lid
 - 1 ea: Raspberry Pi cases
-
-Store Bought Part List:
 
 ### 10 tooth stepper gear
 
