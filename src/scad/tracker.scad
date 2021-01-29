@@ -59,11 +59,13 @@ gear43_height=7.5;
 // Size of the shaft hole.
 gear43_shaft_diameter=6.5;
 
-// Size of hex hole.  Set to 0 if no hex (i.e. for a nut).
-gear43_nut_width=11;
+// Size of hex nut hole.
+gear43_nut_width=11.5;
 
-// Height of the hex hole recess in the gear.  Ignored if nut_width = 0.
-gear43_nut_height=5.5;
+// Height of the hex hole recess in the gear.  Consider using 2 nuts for stability, but they must be at least 1/6 turn offset (not touching! they'll bind on the curved rod)
+gear43_nut_height=12;
+
+gear43_nut_body_diameter=20;
 
 
 /* [Gear: Stepper] */
@@ -82,8 +84,6 @@ gear10_set_screw_diameter=4;
 
 
 /* [Hidden] */
-
-tracker_balance_x=tracker_radius*0.36;
 
 // might make this not hidden eventually
 
@@ -132,6 +132,10 @@ tracker_length=bearing_diameter/2+hinge_thickness+tracker_radius+rod_diameter/2;
 top_width=hinge_length-bearing_height*2-2;
 camera_bolt_housing_diameter=camera_bolt_diameter+hinge_thickness;
 hinge_bolt_housing_diameter=hinge_bolt_diameter+hinge_thickness;
+
+tracker_balance_x=tracker_length*0.33;
+tracker_balance_T=atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length));
+
 
 // Height of the gear overall.
 gear10_height=tracker_thickness+gear43_height;
@@ -213,21 +217,54 @@ module bottom()
 
             // cut one angled bit
             translate([tracker_balance_x+tracker_extra_length,0,-1])
-            rotate([0,0,atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length))])
+            rotate([0,0,tracker_balance_T])
             mirror([0,1,0])
             cube([tracker_length,hinge_length,tracker_thickness*2]);
 
             // cut other angled bit
             translate([tracker_balance_x+tracker_extra_length,hinge_length,-1])
-            rotate([0,0,-atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length))])
+            rotate([0,0,-tracker_balance_T])
             cube([tracker_length,hinge_length,tracker_thickness*2]);
+
+            // cut motor stuff
+            translate([hinge_housing_diameter/2+tracker_radius-(gear10_pitch_d+gear43_pitch_d)/2,hinge_length/2,0])
+            rotate([0,0,-90])
+            cut_stepper_motor();
         }
-        
+
+        cut_tracker_honeycomb();
+
+        // one part of bearing housing
         part_bearing_housing();
 
+        // other part of bearing housing
         translate([0,hinge_length-bearing_height,0])
         part_bearing_housing();
     }
+}
+
+module cut_tracker_honeycomb()
+{
+    // cut out extra material we don't need to speed up print and reduce materials, but keep a reasonable amount of structure
+    hex_width=10;
+    hex_gap=5;
+    c=hinge_thickness+bearing_diameter/2+tracker_radius-gear43_pitch_d/2-gear10_pitch_d/2-stepper_gear_diameter/2-tracker_thickness*2-tracker_balance_x;
+    hex_overall_y=hinge_length-tracker_thickness*2;
+
+    if (false) {
+        translate([tracker_balance_x+tracker_thickness,hinge_length/2,tracker_thickness])
+        rotate([0,90,0])
+        cylinder(d=10,h=hex_overall_x);
+
+        translate([tracker_balance_x+tracker_thickness+10,tracker_thickness,tracker_thickness])
+        rotate([-90,0,0])
+        cylinder(d=10,h=hex_overall_y);
+    }
+
+    //hex_count_x=;
+    //hex_count_y;
+
+    for 
 }
 
 module part_hinge_bolt_housing(h)
@@ -276,13 +313,13 @@ module top()
         
         // cut one angled bit
         translate([tracker_balance_x+tracker_extra_length,0,tracker_thickness])
-        rotate([0,0,atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length))])
+        rotate([0,0,tracker_balance_T])
         mirror([0,1,0])
         cube([tracker_length,top_width,tracker_thickness*2]);
 
         // cut other angled bit
         translate([tracker_balance_x+tracker_extra_length,hinge_length,tracker_thickness])
-        rotate([0,0,-atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length))])
+        rotate([0,0,-tracker_balance_T])
         cube([tracker_length,top_width,tracker_thickness*2]);
     }
 }
@@ -457,7 +494,7 @@ w = width
 h = height
 s = sides (default 6)
 */
-module cut_nut(w,h,s=6) 
+module cut_hex(w,h,s=6) 
 {
     // how much rotation per side in degrees, T
     T = 360 / s;
@@ -492,6 +529,9 @@ module part_gear_43()
     
     T = 360 / gear43_tooth_count;
     
+    // hard coded plate for nut to rest on
+    nut_offset_z=2;
+
     color("cyan")
     difference() 
     {
@@ -522,6 +562,9 @@ module part_gear_43()
                 
                 // main body
                 cylinder(d=gear43_inner_d+t,h=gear43_height,center=true);
+
+                // nut body
+                cylinder(d=gear43_nut_body_diameter,h=nut_offset_z+gear43_nut_height);
             }
 
             // shaft
@@ -531,8 +574,8 @@ module part_gear_43()
         // remove nut
         if (gear43_nut_width > 0) {
             // translate so we can cut it out of the cog at the TOP
-            translate([0,0,gear43_height-gear43_nut_height])
-            cut_nut(w=gear43_nut_width,h=gear43_nut_height*2);
+            translate([0,0,nut_offset_z])
+            cut_hex(w=gear43_nut_width,h=gear43_nut_height*2);
         }
     }
 }
@@ -627,6 +670,7 @@ if (part == "top") {
     translate([hinge_housing_diameter/2+tracker_radius,hinge_length/2,tracker_thickness])
     part_gear_43();
     
+    translate([hinge_housing_diameter/2+tracker_radius-(gear10_pitch_d+gear43_pitch_d)/2,hinge_length/2,0])
     part_gear_10();
 } else if (part == "both") {
     top();
