@@ -99,6 +99,13 @@ Hardware I used that is default for the model:
     - holds bearings to the top plate of tracker
 - 1 ea: 5/16" nut
     - secure the bolt for the bearings
+- 1 ea: 3/8" threaded rod
+    - secure a camera mount
+    - NOTE a bolt will work but limits flexibility
+- 2 ea: 3/8" washer
+    - for camera mount rod
+- 2 ea: 3/8" nut
+    - for camera mount rod
 - 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
     - the rod you'll bend
 - 2 ea: 1/4"-20 nut
@@ -184,7 +191,9 @@ You can use the `part` parameter to get just the model for the **"top"** or **"b
 
 ### ULN2003 case and lid
 
-File: [case-uln2003.scad](src/scad/case-uln2003.scad)
+File: [tracker.scad](src/scad/tracker.scad)
+Parts: **ULN2003: Case**, **ULN2003: Lid**
+STL: [ULN2003-case.stl](src/stl/ULN2003-case.stl), [ULN2003-lid.stl](src/stl/ULN2003-lid.stl)
 
 Shouldn't need any editing.  This is a simple case with a lid held by friction.  It has slots in the side for wires.  Mount to the tracker as you want.. glue, velcro, weld, whatever.
 
@@ -210,7 +219,92 @@ I feel it's important to know what to print in what order so you can test and tu
 
 # Assembly
 
+Follow the sub-sections in order...
 
+## Prep: Sanding / Filing
+
+1. Make sure the bottom plate is smooth where the 43 tooth gear will rest.
+1. Make sure the bottom plate's rod hole is smooth but don't make it too wide!
+1. Cleanup the bottom plate bearing support.  Don't get it so the bearing can be hand pressed in, you can do that with the bolt and a few larger washers
+1. Cleanup the top plate hinge bolt support
+
+## Bearings
+
+Gently press the bearings into the bottom plate.  Be sure to put the pressure on the outer bearing race, not the inner, else you may damage the bearing.  It shouldn't be too hard to press it in, so if it's really hard cleanup some with a file or sandpaper.
+
+To press them in stach washers such that the biggest washer is on the outer race and the hinge bolt won't slip through it.  Use washers on both sides.  Gently screw the bolt onto the bearing with the nut you have for the hinge.  
+
+Remove bolt and repeat for the other bearing.
+
+Here are some example pictures of me testing this process on the hardware test print.
+
+![Bearing Press 1](images/bearing-press-1.jpg)
+![Bearing Press 2](images/bearing-press-2.jpg)
+![Bearing Press 3](images/bearing-press-3.jpg)
+
+## Hinge Bolt
+
+Make sure you get the right orientation for the plates.  When closed, the sides that were on your print bed are on the outside!
+
+Note I am adding some 1/4" washers to ensure the bolt and nut have a solid and flat surface on the outside of the bearing.  This is not required.
+
+Then...
+1. Place the top plate in between the bearings in the correct orientation. 
+1. Place one 1/4" washer on the 5/16" hex head bolt.
+1. Thread 5/16" hex head bolt through one bearing.
+1. Push or thread bolt through the top plate.
+1. Add one 1/4" washer on the bolt.
+1. Gently tighten.  This may mean tightening the bolt head if threaded through the top plate AND tightening the 5/16" nut.
+
+## Camera Bolt
+
+Thread or push your 3/8" bolt through the camera bolt hole.  Tighten as needed.
+
+**NOTE** I find that if this bolt is very long the whole thing will bounce more.  Using a 3/8" threaded rod for this allows you to adjust the length by changing how long the rod is on the camera (polar) side.
+
+## Tripod Bolt
+
+This is specific to your tripod.  You may need to replace the bolt you have on the tripod with something longer.  Whatever you have, thread it through the bottom plate hole and secure with a nut.  Consider a T-nut and a shorter bolt if you don't want it protruding.  The T-nut requires a wider hole and could be pressed in after heating (so the tines will melt the plastic when being pushed).
+
+## Stepper Gear
+
+You may have to push the 10 tooth gear onto the stepper motor.  But if you have to push really hard STOP.  Take the time to file down the inside.  You'll need some small hobby files, but if you have a 3D printer you should get some anyway.  Once it fits down snug but not too snug thread the #6 set screw into one side of the gear.  Optionally use a second #6 set screw.
+
+**NOTE** take care to note if the stepper gear is tilted.  This is easier to do powered, since you can simply eyeball a full rotation and see if it seems the teeth wobble over the course of a rotation.
+
+## Stepper (with Gear)
+
+Thread 2 #8-32 x 1" machine screws through the motor mounts into the 2 holes on the bottom plate.  Of course the gear must go UP into the bottom plate, so you can't get the orientation wrong unless you try really **really** hard..
+
+Slide stepper as close to hinge as possible and **loosely** tighten bolts with #8-32 nuts, optional washers.  We will adjust the stepper location in a later step, but it's much easier to install before the threaded rod is on the tracker.
+
+## Threaded Rod and Gear
+
+For now just a quick summary.  More info to come..
+1. Bend the rod.
+1. Open tracker.
+1. Secure to top with washers, lock washers, and nuts (1 ea top and bottom).
+1. Install 43 tooth gear (with nuts).
+1. Thread end of curved rod into bottom plate.
+1. If necessary, bend AT THE TOP PLATE to get it to fit in the bottom plate.  Do not remove any curve!
+1. Thread 1/4" cap nut on end of the curved rod.
+
+**NOTE** Once you install this on a tripod you may find it is too long, interfering with tripod legs.  You'll get hours of time out of this even shortening it a lot.  Feel free to cut short with a hack saw, smooth out the threads, and put the nut cap back on.
+
+## Adjust Stepper
+
+With the threaded rod gear near the end of the curved rod..
+
+Loosen the stepper bolts and slide it so that the stepper gear is interacting with the threaded rod gear where you want.  This may take some tuning to make sure it's not too loose or tight a fit.
+
+**NOTE** imperfections in the gears may cause things to move around while taking shots.  If you notice things binding see if you can smooth any of the gears or adjust the distance between the stepper and threaded rod gears.
+
+## Other Electronics
+
+The drive controller and Raspberry Pi installation I leave to you.  Just make sure:
+1. lights on these will not interfer with your pictures
+1. the threaded rod will not hit them
+1. they are in a good location when the tracker is both fully closed AND fully open
 
 # Code
 

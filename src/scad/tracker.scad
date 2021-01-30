@@ -1,4 +1,4 @@
-part = "both"; // [bottom:"Tracker Bottom",top:"Tracker Top",both:"Top and Bottom",bottom_with_gears:"Bottom with Gears",gear43:"Threaded Rod Gear",gear10:"Stepper Gear",test_hardware:"TESTER: Hardware",test_gears:"TESTER: Gears"]
+part = "both"; // [bottom:"Tracker Bottom",top:"Tracker Top",both:"Top and Bottom",bottom_with_gears:"Bottom with Gears",gear43:"Threaded Rod Gear",gear10:"Stepper Gear",test_hardware:"TESTER: Hardware",test_gears:"TESTER: Gears",support_hinge_bolt:"SUPPORT: Hinge Bolt",support_bearing:"SUPPORT: Bearing"]
 
 /* [Tracker] */
 
@@ -108,8 +108,10 @@ gear10_outer_d=gear10_pitch_d+gear_tooth_addendum*2;
 gear10_inner_d=gear10_pitch_d-gear_tooth_dedendum*2;
 
 
+// How much length you want to slide the stepper for adjustment.
+stepper_adjustment_length=10;
 
-stepper_hole_diameter = 3.9;
+stepper_hole_diameter = 4.5;
 
 // distance between center of the 2 mounting holes
 stepper_hole_distance = 35;
@@ -128,14 +130,18 @@ stepper_motor_to_shaft_radius = 7.25;
 
 hinge_housing_diameter=bearing_diameter+hinge_thickness*2;
 tracker_thickness=hinge_housing_diameter/2-2;
-tracker_length=bearing_diameter/2+hinge_thickness+tracker_radius+rod_diameter/2;
+tracker_length=bearing_diameter/2+hinge_thickness+tracker_radius;
 top_width=hinge_length-bearing_height*2-2;
-camera_bolt_housing_diameter=camera_bolt_diameter+hinge_thickness;
-hinge_bolt_housing_diameter=hinge_bolt_diameter+hinge_thickness;
+camera_bolt_housing_diameter=camera_bolt_diameter+hinge_thickness*1.5;
+hinge_bolt_housing_diameter=hinge_bolt_diameter+hinge_thickness*2;
 
 tracker_balance_x=tracker_length*0.33;
 tracker_balance_T=atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length));
 
+
+// Gears are set to meet at the "pitch" circle.  Adding a little hard coded slop or imperfections push / shake things in bad ways.
+gear_offset_slop=1;
+gear_offset=(gear10_pitch_d+gear43_pitch_d)/2+gear_offset_slop;
 
 // Height of the gear overall.
 gear10_height=tracker_thickness+gear43_height;
@@ -227,12 +233,10 @@ module bottom()
             cube([tracker_length,hinge_length,tracker_thickness*2]);
 
             // cut motor stuff
-            translate([hinge_housing_diameter/2+tracker_radius-(gear10_pitch_d+gear43_pitch_d)/2,hinge_length/2,0])
+            translate([hinge_housing_diameter/2+tracker_radius-gear_offset,hinge_length/2,0])
             rotate([0,0,-90])
             cut_stepper_motor();
         }
-
-        cut_tracker_honeycomb();
 
         // one part of bearing housing
         part_bearing_housing();
@@ -241,30 +245,6 @@ module bottom()
         translate([0,hinge_length-bearing_height,0])
         part_bearing_housing();
     }
-}
-
-module cut_tracker_honeycomb()
-{
-    // cut out extra material we don't need to speed up print and reduce materials, but keep a reasonable amount of structure
-    hex_width=10;
-    hex_gap=5;
-    c=hinge_thickness+bearing_diameter/2+tracker_radius-gear43_pitch_d/2-gear10_pitch_d/2-stepper_gear_diameter/2-tracker_thickness*2-tracker_balance_x;
-    hex_overall_y=hinge_length-tracker_thickness*2;
-
-    if (false) {
-        translate([tracker_balance_x+tracker_thickness,hinge_length/2,tracker_thickness])
-        rotate([0,90,0])
-        cylinder(d=10,h=hex_overall_x);
-
-        translate([tracker_balance_x+tracker_thickness+10,tracker_thickness,tracker_thickness])
-        rotate([-90,0,0])
-        cylinder(d=10,h=hex_overall_y);
-    }
-
-    //hex_count_x=;
-    //hex_count_y;
-
-    for 
 }
 
 module part_hinge_bolt_housing(h)
@@ -280,6 +260,11 @@ module cut_hinge_bolt()
     cylinder(d=hinge_bolt_diameter,h=hinge_length*1.1);
 }
 
+module support_hinge_bolt()
+{
+    cube(1000);
+}
+
 module top()
 {
     difference()
@@ -291,16 +276,16 @@ module top()
             part_hinge_bolt_housing(h=hinge_length-bearing_height*2);
             
             // main body
-            translate([(hinge_housing_diameter-hinge_bolt_diameter-hinge_thickness)/2,(hinge_length-top_width)/2,hinge_housing_diameter/2])
-            cube([tracker_length+tracker_extra_length-(hinge_housing_diameter-hinge_bolt_diameter-hinge_thickness)/2,top_width,hinge_housing_diameter/2]);
-            
-            // camera mount housing
+            translate([(hinge_housing_diameter-hinge_bolt_housing_diameter)/2,(hinge_length-top_width)/2,hinge_housing_diameter-tracker_thickness])
+            cube([tracker_length+tracker_extra_length-hinge_housing_diameter/2+hinge_bolt_housing_diameter/2,top_width,tracker_thickness]);
+
+            // camera mount housing (flush to top so we can flip and print flat)
             translate([tracker_balance_x,(hinge_length-top_width)/2,hinge_housing_diameter-camera_bolt_housing_diameter/2])
             part_camera_bolt_housing();
         }
         
         // cut out the hinge bolt
-        translate([hinge_housing_diameter/2,-1,tracker_thickness*1.2])
+        translate([hinge_housing_diameter/2,bearing_height,hinge_housing_diameter/2])
         cut_hinge_bolt();
         
         // cut rod hole
@@ -321,6 +306,10 @@ module top()
         translate([tracker_balance_x+tracker_extra_length,hinge_length,tracker_thickness])
         rotate([0,0,-tracker_balance_T])
         cube([tracker_length,top_width,tracker_thickness*2]);
+
+        // cut extra material
+        translate([tracker_balance_x+tracker_thickness,hinge_length/2,tracker_thickness])
+        cut_tracker_material();
     }
 }
 
@@ -401,18 +390,17 @@ module test_gears()
 {
     // create bare outline of rod hole and stepper motor holes
     // use hull and minkowski to create a stepper mount plate
-    // add tube to put rod gear at right height
     
     housing_thickness=2;
-    hull_height=1;
+    hull_height=tracker_thickness;
     
     // rod is at (0,0), figure out where the stepper shaft should be cenetered
-    stepper_shaft_xyz=[gear43_pitch_d/2+gear10_pitch_d/2,0,0];
+    stepper_shaft_xyz=[gear_offset,0,0];
 
     // 1. hull (minimim shape)
     // 2. minkowski (add material for mounting) [many translations to orient correctly]
     // 3. difference (remove shafts/rods/bolts)
-    
+
     difference()
     {
         union()
@@ -429,14 +417,11 @@ module test_gears()
                     
                     // stepper bolts (centered on the motor shaft)
                     translate(stepper_shaft_xyz)
-                    rotate([0,0,-90])
+                    rotate([0,0,90])
                     cut_stepper_bolts(h=hull_height/2,z=0);
                 }
                 cylinder(r=housing_thickness,h=hull_height/2);
             }
-
-            // add full tube for rod housing
-            cylinder(d=rod_diameter+housing_thickness*2,h=tracker_thickness);
         }
 
         // cut the rod hole
@@ -445,7 +430,7 @@ module test_gears()
 
         // cut the stepper bolts and gear
         translate(stepper_shaft_xyz)
-        rotate([0,0,-90])
+        rotate([0,0,90])
         {
             cut_stepper_bolts(h=hull_height*4,z=-1);
             cut_stepper_gear(z=-1);
@@ -458,11 +443,25 @@ module test_gears()
 module cut_stepper_bolts(h=tracker_thickness*2,z=-1)
 {
     // bolts
-    translate([-stepper_hole_distance/2,-stepper_motor_to_shaft_radius,z])
+    translate([-stepper_hole_distance/2,-stepper_motor_to_shaft_radius-stepper_adjustment_length/2,z])
     {
-        cylinder(d=stepper_hole_diameter,h=h);
-        translate([stepper_hole_distance,0,0])
-        cylinder(d=stepper_hole_diameter,h=h);
+
+        hull()
+        {
+            cylinder(d=stepper_hole_diameter,h=h);
+            
+            translate([0,stepper_adjustment_length,0])
+            cylinder(d=stepper_hole_diameter,h=h);
+        }
+
+        hull()
+        {
+            translate([stepper_hole_distance,0,0])
+            cylinder(d=stepper_hole_diameter,h=h);
+
+            translate([stepper_hole_distance,stepper_adjustment_length,0])
+            cylinder(d=stepper_hole_diameter,h=h);
+        }
     }
 }
 
@@ -470,9 +469,16 @@ module cut_stepper_bolts(h=tracker_thickness*2,z=-1)
 module cut_stepper_gear(z=-1)
 {
     // gear
-    translate([0,0,z])
-    cylinder(d=stepper_gear_diameter,h=stepper_motor_to_gear_height);
+    translate([0,-stepper_adjustment_length/2,z])
+    hull() 
+    {
+        cylinder(d=stepper_gear_diameter,h=stepper_motor_to_gear_height);
+        
+        translate([0,stepper_adjustment_length,0])
+        cylinder(d=stepper_gear_diameter,h=stepper_motor_to_gear_height);
+    }
 }
+
 
 module cut_stepper_motor()
 {
@@ -533,50 +539,44 @@ module part_gear_43()
     nut_offset_z=2;
 
     color("cyan")
-    difference() 
+    difference()
     {
-        translate([0,0,gear43_height/2])
-        difference()
+        union()
         {
-            
-            union()
-            {
-                // teeth
-                for (i = [0:gear43_tooth_count-1]) {
-                    rotate([0,0,T*i])
-                    hull()
-                    {
-                        // tooth face
-                        translate([gear43_outer_d/2-t/2,0,0])
-                        cube([t,gear_tooth_tip_width,gear43_height],center=true);
-                        
-                        // tooth at pitch circle
-                        translate([gear43_pitch_d/2-t/2,0,0])
-                        cube([t,gear_tooth_thickness,gear43_height],center=true);
-                        
-                        // tooth at inner (clearance) circle
-                        translate([gear43_inner_d/2-t/2,0,0])
-                        cube([t,gear_tooth_thickness+gear_tooth_tip_width,gear43_height],center=true);
-                    }
+            // teeth
+            translate([0,0,gear43_height/2])
+            for (i = [0:gear43_tooth_count-1]) {
+                rotate([0,0,T*i])
+                hull()
+                {
+                    // tooth face
+                    translate([gear43_outer_d/2-t/2,0,0])
+                    cube([t,gear_tooth_tip_width,gear43_height],center=true);
+                    
+                    // tooth at pitch circle
+                    translate([gear43_pitch_d/2-t/2,0,0])
+                    cube([t,gear_tooth_thickness,gear43_height],center=true);
+                    
+                    // tooth at inner (clearance) circle
+                    translate([gear43_inner_d/2-t/2,0,0])
+                    cube([t,gear_tooth_thickness+gear_tooth_tip_width,gear43_height],center=true);
                 }
-                
-                // main body
-                cylinder(d=gear43_inner_d+t,h=gear43_height,center=true);
-
-                // nut body
-                cylinder(d=gear43_nut_body_diameter,h=nut_offset_z+gear43_nut_height);
             }
+            
+            // main body
+            translate([0,0,gear43_height/2])
+            cylinder(d=gear43_inner_d+t,h=gear43_height,center=true);
 
-            // shaft
-            cylinder(d=gear43_shaft_diameter,h=gear43_height*2,center=true);
+            // nut body
+            cylinder(d=gear43_nut_body_diameter,h=nut_offset_z+gear43_nut_height);
         }
-        
-        // remove nut
-        if (gear43_nut_width > 0) {
-            // translate so we can cut it out of the cog at the TOP
-            translate([0,0,nut_offset_z])
-            cut_hex(w=gear43_nut_width,h=gear43_nut_height*2);
-        }
+
+        // cut shaft
+        cylinder(d=gear43_shaft_diameter,h=gear43_height*2,center=true);
+
+        // cut nut
+        translate([0,0,nut_offset_z])
+        cut_hex(w=gear43_nut_width,h=gear43_nut_height*2);
     }
 }
 
@@ -661,6 +661,7 @@ module part_gear_10()
 }
 
 if (part == "top") {
+    rotate([180,0,0])
     top();
 } else if (part == "bottom") {
     bottom();
@@ -670,7 +671,7 @@ if (part == "top") {
     translate([hinge_housing_diameter/2+tracker_radius,hinge_length/2,tracker_thickness])
     part_gear_43();
     
-    translate([hinge_housing_diameter/2+tracker_radius-(gear10_pitch_d+gear43_pitch_d)/2,hinge_length/2,0])
+    translate([hinge_housing_diameter/2+tracker_radius-gear_offset,hinge_length/2,0])
     part_gear_10();
 } else if (part == "both") {
     top();
@@ -683,4 +684,8 @@ if (part == "top") {
     part_gear_43();
 } else if (part == "gear10") {
     part_gear_10();
-}
+} else if (part == "support_hinge_bolt") {
+    support_hinge_bolt();
+} else if (part == "support_bearing") {
+    support_bearing();
+} 
