@@ -235,6 +235,40 @@ Not included.  Print what you like.  Attach to tracker.  Examples:
 - [Raspberry Pi 3 (B/B+), Pi 2 B, and Pi 1 B+ case with VESA mounts and more](https://www.thingiverse.com/thing:922740)
 - [Raspberry Pi 4B Case](https://www.thingiverse.com/thing:3793664)
 
+
+## Print Settings
+
+This is up to you.  It depends on your printer, how you can remove supports, etc.  What I did:
+
+- Printer: LulzBot TAZ 5
+- Nozzle: 0.5mm (stock is 0.35mm)
+- Material: PolyLite PLA, True Black
+- Layer Height: 0.38mm
+- Infill: 40%
+- Slicer: Cura LulzBot Edition, version 3.6.0 
+- Supports: Custom
+
+I used the [SUPPORT-bearing.stl](src/stl/SUPPORT-bearing.stl) to only support the bearing holes.  All other holes print fine for me, verified with the [TEST-hardware.stl](src/stl/TEST-hardware.stl).
+
+**NOTE** it is much quicker to disable automatic slicing while moving around large parts:
+1. Settings -> Configure settings visibility...
+1. "General" section
+1. Uncheck "Slice automatically"
+1. Close
+
+In order to use custom support in Cura:
+
+1. Add [TRACKER-bottom.stl](src/stl/TRACKER-bottom.stl)
+2. Add [SUPPORT-bearing.stl](src/stl/SUPPORT-bearing.stl)
+3. Select the SUPPORT-bearing part
+4. On the right, select "Custom" for "Print Setup".
+5. On the left, select "Per Model Settings" (must be in "Custom" for this to be enabled)
+6. Choose "Mesh Type" of "Print as support"
+7. Use "Multiply Object" to add 1 more support
+8. Move and scale as needed to fill the bearing areas
+
+![Tracker with Custom Support in Cura](images/cura-with-custom-support.PNG)
+
 ## Print Order
 
 I feel it's important to know what to print in what order so you can test and tune for the final product.  See the [TEST models](#TESTmodels) second for tweaking parameters.  I highly **highly** recommend this order.  This is also the order of parts in Customizer..
@@ -249,6 +283,7 @@ I feel it's important to know what to print in what order so you can test and tu
 9. Print "TRACKER: Top" and "TRACKER: Bottom".
 10. [Assemble!](#assembly)
 
+
 # Assembly
 
 Follow the sub-sections in order...
@@ -257,7 +292,7 @@ Follow the sub-sections in order...
 
 1. Make sure the bottom plate is smooth where the 43 tooth gear will rest.
 1. Make sure the bottom plate's rod hole is smooth but don't make it too wide!
-1. Cleanup the bottom plate bearing support.  Don't get it so the bearing can be hand pressed in, you can do that with the bolt and a few larger washers
+1. Cleanup the bottom plate bearing support.  Don't get it so the bearing can be hand pressed in, you can do that with the bolt and a few larger washers.  Cleanup both sides EVENLY if possible!
 1. Cleanup teeth on all gears.  Do not take off much material but make sure there are no odd protrusions that will cause gears to push each other and move the tracker.
 1. Cleanup the inside of the stepper gear so it fits on the stepper motor.
 1. Generally cleanup anything else.. 
@@ -289,6 +324,13 @@ Then...
 1. Push or thread bolt through the top plate.
 1. Add one 1/4" washer on the bolt.
 1. Gently tighten.  This may mean tightening the bolt head if threaded through the top plate AND tightening the 5/16" nut.
+1. Check alignment of the threaded rod holes between top and bottom.
+
+### Troubleshoot
+
+If the rod holes do not align it's probably due to over extrusion and filling away material inconsistently between the two bearing holes.  Mine was off by at least 1mm.. I don't what I did wrong but whatever.  Going to make it work!  My solution was to find which hole needed to pivot and slowly sanding with 80 grit sandpaper on a dowel.  The side effect of this was a gap on the back side of one bearing.  Sigh.
+
+Print the [mini-wedge.stl](src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
 
 ## Camera Bolt
 

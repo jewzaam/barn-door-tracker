@@ -1,4 +1,4 @@
-part = "both"; // [test_hardware:"TEST: Hardware",gear_rod:"GEAR: Rod",gear_stepper:"GEAR: Stepper",test_gears:"TEST: Gears",support_bearing:"SUPPORT: Bearing",top:"TRACKER: Top",bottom:"TRACKER: Bottom",debug_bottom:"DEBUG: Bottom",debug_tracker:"DEBUG: Tracker"]
+part = "test_hardware"; // [test_hardware:"TEST: Hardware",gear_rod:"GEAR: Rod",gear_stepper:"GEAR: Stepper",test_gears:"TEST: Gears",support_bearing:"SUPPORT: Bearing",top:"TRACKER: Top",bottom:"TRACKER: Bottom",compass:"HELPER: Compass",debug_bottom:"DEBUG: Bottom",debug_tracker:"DEBUG: Tracker"]
 
 
 /* [Tracker] */
@@ -83,6 +83,17 @@ gear10_shaft_height=6;
 
 gear10_set_screw_diameter=4;
 
+
+/* [Compass] */
+
+// actual diameter of the rod.. rod_diameter is used for holes, this is used for the compass
+rod_diameter_actual = 6.35;
+
+compass_hole_diameter=1.8;
+
+compass_height=2;
+
+compass_width=4;
 
 /* [Hidden] */
 
@@ -694,6 +705,27 @@ module part_gear_stepper()
     }
 }
 
+module part_compass()
+{
+    compass_r=tracker_radius-rod_diameter_actual/2;
+
+    difference()
+    {
+        hull()
+        {
+            cylinder(d=compass_width,h=compass_height,center=true);
+
+            translate([compass_r,0,0])
+            cylinder(d=compass_width,h=compass_height,center=true);
+        }
+
+        cylinder(d=compass_hole_diameter,h=compass_height*2,center=true);
+
+        translate([compass_r,0,0])
+        cylinder(d=compass_hole_diameter,h=compass_height*2,center=true);
+    }
+}
+
 if (part == "test_hardware") {
     part_test_hardware();
 } else if (part == "gear_rod") {
@@ -709,6 +741,8 @@ if (part == "test_hardware") {
     part_top();
 } else if (part == "bottom") {
     part_bottom();
+} else if (part == "compass") {
+    part_compass();
 } else if (part == "debug_bottom") {
     part_bottom();
     
