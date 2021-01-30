@@ -39,24 +39,24 @@ There are tutorials and data sheets. And they are almost right.  But they ultima
 * [Raspberry Pi Stepper Motor Control with L293D / ULN2003A](https://tutorials-raspberrypi.com/how-to-control-a-stepper-motor-with-raspberry-pi-and-l293d-uln2003a/)
 * [Adafruit's Raspberry Pi Lesson 10. Stepper Motors](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-10-stepper-motors/overview)
 
-What these give you is parts of the info but not everything.  And for reasons I cannot fathom the Raspberry Pi tutorial does not plug the stepper straight into the drive board!  I ultimately firgured out how to do it and here's the key things I learned.  Please keep in mind I haven't touched a Raspberry Pi since I setup OctoPi for my 3D printer 5 years ago, so I know almost literally nothing..
+What these give you is parts of the info but not everything.  And for reasons I cannot fathom the Raspberry Pi tutorial does not plug the stepper straight into the drive board!  I tinkered around and firgured out how to do it and here's the key things I learned.  Please keep in mind I haven't touched a Raspberry Pi since I setup OctoPi for my 3D printer 5 years ago, so I know almost literally nothing..
 
-This model of stepper motor has 5 wires.  The colors are important NOT the order they may be in the wiring harness.  Red is power, the others correspond to a coil.  There are 4 coils.  To move the motor you turn the coils on in a specific pattern.  There are several possible patterns but the recommended pattern uses 1/2 steps.  Do that.  It's more steps in a sequence but you're writing code.  If it's just slightly more complex and RECOMMENDED who cares?
+This model of stepper motor has 5 wires.  The colors are important, NOT the order they may be in the wiring harness.  Red is power, the others correspond to a coil by color.  There are 4 coils.  To move the motor you turn the coils on in a specific pattern.  There are several possible patterns but the recommended pattern uses 1/2 steps for this stepper.  Do that.  It's more steps in a sequence but you're writing code.  If it's just slightly more complex and RECOMMENDED who cares?
 
-The wires from the stepper are connected on the side of the driver board with a clip for the stepper.  On the other side you hook up GPIO from the Pi.  The GPIO will will turn the coil ON.  This is an important distinction as the data sheet indicates the sequence by which coil is held to ground and is therefore on.  So "0" on the data sheet is "1" in your program.
+The wires from the stepper are connected on the side of the driver board with a clip for the stepper.  On the other side you hook up GPIO from the Pi.  The GPIO will will turn the coil ON.  This is important to note, as the data sheet indicates the sequence by which coil is held to ground and is therefore on.  So "0" on the data sheet is "1" in your program.
 
 And don't forget power!  You can turn on the coil GPIO all you want, but without power turned on it does nothing.  Well, it still may do nothing if you wire it wrong, but that's a different problem!
 
 Finally the question of speed.  This is controlled only by the delay between steps.  There's a HUGE gotya on this one:  each step will take a different amount of time.  Meaning it is not an accurate system.  But we can compensate for that.
 
-Now for some math.  We are driving some gears that push a threaded rod.  We need to know how fast that rod will move.  The stepper has a motor in it and the data sheet gives how many degrees it moves per step. BUT it also has a gear reduction  inside the motor.  So the stepper shaft moves on rotation based on that reduction.  The 28BYJ-48 stride angle is listed as "5.625°/64".  This means each step is 5.625° and the gear reduction is 64:1.  So one rotation is (360/5.625*64) = 4096 steps (using the recommended half step sequence).  This means to get our gears to turn at a specific rate we can simply put the right delay between steps.  But not really.  It's not accurate.
+Now for some math.  We are driving some gears that push a threaded rod.  We need to know how fast that rod will move.  The stepper has a motor in it and the data sheet gives how many degrees it moves per step. BUT it also has a gear reduction inside the motor.  So the stepper shaft moves on rotation based on that reduction.  The 28BYJ-48 stride angle is listed as "5.625°/64".  This means each step is 5.625° and the gear reduction is 64:1.  So one rotation is (360/5.625*64) = 4096 steps (using the recommended half step sequence).  This means to get our gears to turn at a specific rate we can simply put the right delay between steps.  But not really.  As noted, it isn't accurate.
 
-To compensate for timing inacuraces in either the Pi or in the stepper I spent a good bit of time trying out things.  It's very easy to get a system setup that oscillates and gets worse over time.  The best pattern I found was to do a short snapshot of the expected vs actual time taken for the number of steps and adjust the delay based on what was observed.  It won't be 100% accurate but we're talking 100's of ms over the course of half an hour, something like 0.025% drift.  Unless you're taking 30 minute exposures you won't notice it!
+To compensate for timing inacuraces in either the Pi or in the stepper I spent a good bit of time trying out things.  It's very easy to get a system setup that oscillates and gets worse over time.  The best pattern I found was to do a short snapshot of the expected vs actual time observed over a known number of steps and adjust the delay based on what was observed.  It won't be 100% accurate but we're talking 100's of ms over the course of half an hour, something like 0.025% drift.  Unless you're taking 30 minute exposures you won't notice it!  By the way, you won't take 30 minute exposures.  At 300mm I probably will try only 30 seconds. But that's better than the 2 seconds untracked by a LOT!
 
 We have a stepper, and it's pretty accurate.  We just need to know what gears we're turning and the rod it's pushing so we know the delay for the stepper and the distance to put the rod from the pivot.  This model will let you pick these values if you have something different to work with.  I went with things from other models I saw around the interwebs and what I could get in my local hardware store:
 
 * 1/4 inch threaded rod, 20 threads per inch
-* 1 rotation of rod's gear per minute
+* rod 200mm from the hinge, because of print bed size
 
 Key values to know:
 * how many threads per mm for your rod
@@ -66,13 +66,13 @@ Let's say the rod is 200mm from the pivot point.  This is a comfortable size for
 
 The earth roughly rotates 360° / 24 hours, or 0.25° / minute.  Put another way, every minute the earth rotates 1 / 1440 % of the circumference of your circle.  That means every minute the rod needs to travel 0.8726mm.
 
-What we really need is the how many revolutions a nut on the rod must turn per minute.  Why a nut?  Each revolution travels the distance of one thread.  And we pick one minute simply as a reasonable time scale to work with.  The rotation speed must be enough to move the rod 0.8726mm a minute.  Given 0.7874mm per thread that works out to 1.1082 rotations in a minute.
+What we really need is the how many revolutions a nut on the rod must turn per minute.  Why the nut?  Our gear drives a nut, and one rotation is the distance of one thread along the rod.  And we pick one minute simply as a reasonable time scale to work with.  The rotation speed must be enough to move the rod 0.8726mm a minute.  Given 0.7874mm per thread that works out to 1.1082 rotations in a minute.
 
-Now let's base that on the hard data.
+Now let's put that all together.  Our input date is:
 - rod has 20 threads per inch (20 thread / 24.5 mm)
 - radius of circle is 200 mm
 
-Rotation per minute is:
+Therefore we calculate the rotation required of the nut on the threaded rod per minute is:
 
 (400π/1440) / (20/25.4) = 1.1082 revolutions per minute
 

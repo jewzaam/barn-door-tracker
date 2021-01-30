@@ -1,4 +1,4 @@
-part = "both"; // [bottom:"Tracker Bottom",top:"Tracker Top",both:"Top and Bottom",bottom_with_gears:"Bottom with Gears",gear43:"Threaded Rod Gear",gear10:"Stepper Gear",test_hardware:"TESTER: Hardware",test_gears:"TESTER: Gears",support_hinge_bolt:"SUPPORT: Hinge Bolt",support_bearing:"SUPPORT: Bearing"]
+part = "both"; // [bottom:"Tracker Bottom",top:"Tracker Top",both:"Top and Bottom",bottom_with_gears:"Bottom with Gears",gear43:"Threaded Rod Gear",gear10:"Stepper Gear",test_hardware:"TESTER: Hardware",test_gears:"TESTER: Gears",test_finder:"TESTER: Finder",support_hinge_bolt:"SUPPORT: Hinge Bolt",support_bearing:"SUPPORT: Bearing"]
 
 /* [Tracker] */
 
@@ -288,6 +288,36 @@ module support_bearing()
     }
 }
 
+module part_finder(l=top_width)
+{
+    offset_x=(hinge_housing_diameter-hinge_bolt_housing_diameter)/2;
+    od=10;
+    id=7;
+    w=14.2;
+    recess_w=10.6;
+    recess_h=2.5;
+    
+    translate([-offset_x,(hinge_length-l)/2,hinge_housing_diameter-w])
+    difference()
+    {
+        cube([offset_x+od,l,w]);
+
+        translate([od/2,-1,tracker_thickness/2])
+        rotate([-90,0,0])
+        cylinder(d=id,h=l*2);
+
+        translate([recess_h,0,recess_h])
+        rotate([0,-135,0])
+        translate([-recess_w/2,1,recess_w/2])
+        cube([recess_w,l*2,recess_w],center=true);
+
+        translate([recess_h,0,w-recess_h])
+        rotate([0,45,0])
+        translate([-recess_w/2,1,recess_w/2])
+        cube([recess_w,l*2,recess_w],center=true);
+    }
+}
+
 module top()
 {
     difference()
@@ -305,6 +335,9 @@ module top()
             // camera mount housing (flush to top so we can flip and print flat)
             translate([tracker_balance_x,(hinge_length-top_width)/2,hinge_housing_diameter-camera_bolt_housing_diameter/2])
             part_camera_bolt_housing();
+
+            // quick finder, it has a flat surface, a tube (naked eye), and can attach an ez-finder red dot
+            part_finder();
         }
         
         // cut out the hinge bolt
@@ -697,6 +730,8 @@ if (part == "top") {
     test_hardware();
 } else if (part == "test_gears") {
     test_gears();
+} else if (part == "test_finder") {
+    part_finder(l=10);
 } else if (part == "gear43") {
     part_gear_43();
 } else if (part == "gear10") {

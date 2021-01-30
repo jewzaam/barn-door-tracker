@@ -9,7 +9,7 @@ enable_pin = 18
 
 # Order in datasheet: orange, yellow, pink, blue, red (always 0)
 # https://components101.com/motors/28byj-48-stepper-motor
-
+ 
 # pins in order per data sheet: orange, yellow, pink, blue
 Pins = [17,24,4,23]
 
