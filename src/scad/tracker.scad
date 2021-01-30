@@ -262,7 +262,30 @@ module cut_hinge_bolt()
 
 module support_hinge_bolt()
 {
-    cube(1000);
+    color("red")
+    difference()
+    {
+        translate([-(hinge_bolt_housing_diameter-hinge_thickness)/2,0,0])
+        cube([hinge_bolt_housing_diameter-hinge_thickness,bearing_height,hinge_housing_diameter/2-hinge_bolt_housing_diameter/2+hinge_thickness]);
+
+        translate([0,-1,hinge_housing_diameter/2])
+        part_hinge_bolt_housing(h=bearing_height*2);
+    }
+}
+
+module support_bearing()
+{
+    color("red")
+    translate([hinge_housing_diameter/2,0,0])
+    hull()
+    {
+        translate([0,0,hinge_housing_diameter/2])
+        rotate([90,0,0])
+        cylinder(d=hinge_housing_diameter-hinge_thickness,h=bearing_height,center=true);
+        
+        translate([0,0,0.5])
+        cube([hinge_housing_diameter-hinge_thickness,bearing_height,1],center=true);
+    }
 }
 
 module top()
@@ -306,10 +329,6 @@ module top()
         translate([tracker_balance_x+tracker_extra_length,hinge_length,tracker_thickness])
         rotate([0,0,-tracker_balance_T])
         cube([tracker_length,top_width,tracker_thickness*2]);
-
-        // cut extra material
-        translate([tracker_balance_x+tracker_thickness,hinge_length/2,tracker_thickness])
-        cut_tracker_material();
     }
 }
 
@@ -334,7 +353,7 @@ module cut_camera_bolt()
 
 module test_hardware()
 {
-    test_x=tracker_length*0.27;
+    test_x=tracker_length*0.23;
     test_y=max(tripod_bolt_diameter,camera_bolt_diameter)*3;
     
     difference()
@@ -349,7 +368,7 @@ module test_hardware()
             cube([test_x,test_y,tracker_thickness]);
             
             // camera bolt test
-            translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness/2])
+            translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness])
             part_camera_bolt_housing(h=test_y);
             
             // hinge bolt test
@@ -358,7 +377,7 @@ module test_hardware()
         }
         
         // cut camera bolt
-        translate([hinge_housing_diameter+camera_bolt_diameter/2+hinge_thickness/2,0,camera_bolt_diameter/2+hinge_thickness/2])
+            translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness])
         cut_camera_bolt();
                 
         // rod test, top
@@ -375,12 +394,9 @@ module test_hardware()
         cut_hinge_bolt();
         
         // tripod bolt test
-        translate([hinge_housing_diameter+camera_bolt_housing_diameter+max(rod_diameter,tripod_bolt_diameter)+rod_diameter*1.5+hinge_bolt_housing_diameter+tripod_bolt_diameter/2,bearing_height+(test_y-bearing_height)*1/4,0])
+        translate([hinge_housing_diameter+camera_bolt_housing_diameter+tripod_bolt_diameter/2,bearing_height+(test_y-bearing_height)*3/4,0])
         cut_tripod_hole();
 
-        // stepper motor test
-        translate([hinge_housing_diameter+camera_bolt_housing_diameter+tripod_bolt_diameter/2+stepper_hole_distance/2,stepper_motor_to_shaft_radius+test_y-stepper_hole_diameter,0])
-        cut_stepper_motor();
     }
     
     // scope mount..
@@ -401,6 +417,7 @@ module test_gears()
     // 2. minkowski (add material for mounting) [many translations to orient correctly]
     // 3. difference (remove shafts/rods/bolts)
 
+    translate([0,0,-tracker_thickness])
     difference()
     {
         union()
@@ -425,8 +442,9 @@ module test_gears()
         }
 
         // cut the rod hole
-        translate([0,0,-1])
-        cylinder(d=rod_diameter,h=tracker_thickness*2);
+        translate([0,0,tracker_thickness+0.1])
+        rotate([0,0,180])
+        cut_rod_hole_bottom();
 
         // cut the stepper bolts and gear
         translate(stepper_shaft_xyz)
@@ -435,7 +453,6 @@ module test_gears()
             cut_stepper_bolts(h=hull_height*4,z=-1);
             cut_stepper_gear(z=-1);
         }
-
     }
 }
 
