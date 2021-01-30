@@ -1,9 +1,6 @@
-# WORK IN PROGRESS
-
-Some of this is accurate, some of it is being written ahead of code or model changes.  If you're seeing this header it's not 100% ready!
-
-
 # Background
+Why isn't this showing up
+
 
 ## Untracked
 When taking pictures of the stars you will get star trails if you don't compensage for the earth's movement.  In some cases this may be a desired shot!  It can be a pretty cool picture.  But for deep sky imaging it's not desired.
@@ -29,6 +26,8 @@ I wanted to get a better shot and not have to manually manipulate this.  After a
 
 # Building the Tracker
 
+NOTE I am not affiliated with Amazon.  Any links I provide are just to help you out by providing exmaple hardware!
+
 ## How does it work?
 
 The first thing is to understand how the stepper works.  Actually, the first thing is to decide what stepper to use.  I selected the 28BYJ-48 stepper motor with ULN2003 driver board.  Once the parts arrived I dove in trying to understand how it works.
@@ -53,18 +52,20 @@ Now for some math.  We are driving some gears that push a threaded rod.  We need
 
 To compensate for timing inacuraces in either the Pi or in the stepper I spent a good bit of time trying out things.  It's very easy to get a system setup that oscillates and gets worse over time.  The best pattern I found was to do a short snapshot of the expected vs actual time observed over a known number of steps and adjust the delay based on what was observed.  It won't be 100% accurate but we're talking 100's of ms over the course of half an hour, something like 0.025% drift.  Unless you're taking 30 minute exposures you won't notice it!  By the way, you won't take 30 minute exposures.  At 300mm I probably will try only 30 seconds. But that's better than the 2 seconds untracked by a LOT!
 
-We have a stepper, and it's pretty accurate.  We just need to know what gears we're turning and the rod it's pushing so we know the delay for the stepper and the distance to put the rod from the pivot.  This model will let you pick these values if you have something different to work with.  I went with things from other models I saw around the interwebs and what I could get in my local hardware store:
-
-* 1/4 inch threaded rod, 20 threads per inch
-* rod 200mm from the hinge, because of print bed size
+We have a stepper, and it's pretty accurate.  We just need to know what gears we're turning and the rod it's pushing so we know the delay for the stepper and the distance to put the rod from the pivot.  This model will let you pick these values if you have something different to work with.  
 
 Key values to know:
 * how many threads per mm for your rod
 * how far center of rod is from the pivot point
 
-Let's say the rod is 200mm from the pivot point.  This is a comfortable size for me to 3D print.  This is the radius (r). And there are 0.7874 threads per mm (aka 20 threads per inch).  The circumference of the circle your rod travels is 2πr = 400π = 1256.6370mm.
+I went with things from other models I saw around the interwebs and what I could get in my local hardware store:
 
-The earth roughly rotates 360° / 24 hours, or 0.25° / minute.  Put another way, every minute the earth rotates 1 / 1440 % of the circumference of your circle.  That means every minute the rod needs to travel 0.8726mm.
+* 1/4 inch threaded rod, 20 threads per inch
+* rod 200mm from the hinge, because of print bed size
+
+The radius (r) is 200mm.. And there are 0.7874 threads per mm (aka 20 threads per inch).  The circumference of the circle your rod travels is 2πr = 400π = 1256.6370mm.
+
+The earth roughly rotates 360° / 24 hours, or 0.25° / minute.  Put another way, every minute the earth rotates 1 / 1440 % of the circumference of your circle.  That means every minute the rod needs to travel 0.8726mm.  (**NOTE** it isn't exactly / 24 hours, we will use the real value in the stepper code)
 
 What we really need is the how many revolutions a nut on the rod must turn per minute.  Why the nut?  Our gear drives a nut, and one rotation is the distance of one thread along the rod.  And we pick one minute simply as a reasonable time scale to work with.  The rotation speed must be enough to move the rod 0.8726mm a minute.  Given 0.7874mm per thread that works out to 1.1082 rotations in a minute.
 
@@ -76,7 +77,7 @@ Therefore we calculate the rotation required of the nut on the threaded rod per 
 
 (400π/1440) / (20/25.4) = 1.1082 revolutions per minute
 
-This is a very doable number!  Let's get into building...
+Many barn door trackers work on a 1/4" rod at 290mm radius, which works out to 1 rotation per minute.  My motorized prototype did this just fine and the stepper could go faster.  This is a very doable number!  Let's get into building...
 
 ## Parts
 
@@ -90,13 +91,19 @@ If you are not using a 28BYJ-48 stepper motor you'll need ot adjust other parame
 
 Buy the hardware first so you can measure things!
 
-Make sure your bolt is long enough.  You want the tracker to be around 4 inches (~100mm) wide.  If it's too long it's easy to cut it shorter with a hack saw.  It's really hard to make it longer..
+Make sure your hinge bolt is long enough.  You want the tracker to be around 4 inches (~100mm) wide.  If it's too long it's easy to cut it shorter with a hack saw.  It's really hard to make it longer..
+
+If you don't have mini files yet do yourself a favor and get some.  They make cleanup much easier.  And if you get a set without handles just print some and heat press the file into the plastic!  I have a set similar to this [carbon steel 6 piece-set](https://amazon.com/dp/B07KH8BG1F/).
 
 Hardware I used that is default for the model:
 - 2 ea: 608-ZZ bearings (common for skateboards)
     - smooth hinge action
 - 1 ea: 5/16" x 5" hex full thread bolt
     - holds bearings to the top plate of tracker
+- 5 ea: 1/4" washer
+    - 2 for the threaded rod attachment to the top plate
+    - 2 for the hinge, optional
+    - 1 _maybe_ as a spacer under the rod gear
 - 1 ea: 5/16" nut
     - secure the bolt for the bearings
 - 1 ea: 3/8" threaded rod
@@ -110,14 +117,16 @@ Hardware I used that is default for the model:
     - the rod you'll bend
 - 2 ea: 1/4"-20 nut
     - to hold rod to the top plate
-- 4 ea: 1/4" washer
-    - to hold rod to the top plate
 - 2 ea: 1/4" lock washer (optional)
     - to hold rod to the top plate
 - 2 ea: 1/4"-20 cap nut (optional)
     - since you'll probably cut the threaded rod, provides smooth ends
 - 1 ea: M4-0.7 x 8mm set screw
     - set screw to hold small gear to stepper
+- 1 ea: ball head tripod mount
+    - for attaching the camera to the tracker
+    - do not get one with long adjustment rods!
+    - Example: [Neewer Professional 35MM Low-Profile Ball Head 360 Degree Rotatable Tripod Head](https://amazon.com/gp/product/B08FB2Q5RC)
 - 1 ea: 28BYJ-48 stepper motor
     - motor that does the work
 - 1 ea: ULN2003 driver board
@@ -128,94 +137,117 @@ Hardware I used that is default for the model:
     - wire the Pi to the driver board
 - 1 ea: 5V power supply for Raspberry Pi
     - power supply for Pi (and through the Pi, the driver board + stepper)
+    - I use the [Anker PowerCord II 20000](https://amazon.com/gp/product/B01LQ81QR0) I have already...
+
 
 3D printed part list:
 - 1 ea: 10 tooth stepper gear
 - 1 ea: 43 tooth rod gear
-- 1 ea: bolt test
-- 1 ea: gear placement test
 - 1 ea: tracker top and bottom
 - 1 ea: ULN2003 case and lid
 - 1 ea: Raspberry Pi cases
 
-### 10 tooth stepper gear
+Also included are 3D prints to test hardware and gears.  Use them!
+- 1 ea: hardware test
+- 1 ea: gear test
 
-File: [tracker.scad](src/scad/tracker.scad)
-Part: **Stepper Gear**
-STL: [gear-10.stl](src/stl/gear-10.stl)
+### TEST models
 
-Only thing you might tweak is the set screw diameter.  And, honestly, you probably don't need it if your print is tight on the shaft.
+- File: [tracker.scad](src/scad/tracker.scad)
+- Parts: **TEST: Hardware**, **TEST: Gears**
+- STL: [TEST-hardware.stl](src/stl/TEST-hardware.stl), [TEST-gears.stl](src/stl/TEST-gears.stl)
 
-### 43 tooth rod gear
-
-File: [tracker.scad](src/scad/tracker.scad)
-Part: **Threaded Rod Gear**
-STL: [gear-10.stl](src/stl/gear-43.stl)
-
-The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only changing the dimensions for the rod and the nut.  You can play around with other factors but make sure you read up on terms!  I used this for reference [Gear Nomenclature](https://en.wikiversity.org/wiki/Gears#/media/File:Gearnomenclature.jpg).
-
-- shaft_diameter =  rod diameter
-- nut_width = width of the nut
-- nut_height = height of the nut
-
-### test prints
-
-File: [tracker.scad](src/scad/tracker.scad)
-Parts: **TESTER: Hardware**, **TESTER: Gears**
-STL: [TESTER-hardware.stl](src/stl/TESTER-hardware.stl), [TESTER-gears.stl](src/stl/TESTER-gears.stl)
-
-This contains two test.  One is a block that you can test the bearing and **all** threaded hardware.  The other you verify placement of gears, since the final model locks you into gear placement.
+This contains two test.  One is a block that you can test the bearing and **all** threaded hardware.  The other you verify placement of gears.  The gear placement model is techincally optional but I liked testing the gears on a quick print (30 minutes) before firing up the full tracker print (15 housr).
 
 Please use these before you print the full model!  This will let you know if you need to tune any parameters for final print, including gear placement.
 
-### tracker top and bottom
+The "TEST: Hardware" model is very busy.  What you're testing and the params to tweak:
+- Bearing = try pressing your bearing into the model.  It's better to break the test than the real model!
+    - `bearing_diameter`
+    - `bearing_height`
+- EZ-Finder Mount = if you have a finder, see if it fits on here
+    - nothing to tweak, it's hard coded.. you can glue something to the flat surface
+- Visual Finder = just for reference, you don't do anything with this but look through without aid
+    - nothing to tweak
+- Camera Bolt = test your camera bolt goes into this as desired
+    - `camera_bolt_diameter`
+- Tripod = verify tripod bolt fits
+    - `tripod_bolt_diameter`
+- Hinge Bolt = test the hinge bolt
+    - `hinge_bolt_diameter`
+- Rod, Top = make sure the rod fits as desired
+    - `rod_diameter`
+- Rod, Bottom = the curve should be OK for the model, but you can verify with this
+    - `rod_diameter`
+    - `rod_T`
 
-File: [tracker.scad](src/scad/tracker.scad)
-Parts: **Tracker Top**, **Tracker Bottom**
+![TEST Hardware](images/test-hardware.png)
+
+
+
+### GEAR: Stepper
+
+- File: [tracker.scad](src/scad/tracker.scad)
+- Part: **GEAR: Stepper**
+- STL: [gear-stepper.stl](src/stl/gear-stepper.stl)
+
+Only thing you might tweak is the set screw diameter.  I do recommend a set screw as the shaft doesn't have any threads to bite into the stepper gear.  The set screw will ensure alignment of the gear is consistent.  And if you can, put in 2 set screws.  The ones I got were sold in a pack of 2.
+
+- `gear10_set_screw_diameter` = diameter of your set screw hole
+
+### GEAR: Rod
+
+- File: [tracker.scad](src/scad/tracker.scad)
+- Part: **GEAR: Rod**
+- STL: [gear-rod.stl](src/stl/gear-rod.stl)
+
+The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only changing the dimensions for the nut.  You can play around with other factors but make sure you read up on terms!  I used this for reference [Gear Nomenclature](https://en.wikiversity.org/wiki/Gears#/media/File:Gearnomenclature.jpg).
+
+- `gear43_nut_width` = width of the nut
+- `gear43_nut_height` = height of the nut
+
+### TRACKER Top and Bottom
+
+- File: [tracker.scad](src/scad/tracker.scad)
+- - Parts: **Tracker Top**, **Tracker Bottom**
 STL: [tracker-top.stl](src/stl/tracker-top.stl), [tracker-bottom.stl](src/stl/tracker-bottom.stl)
 
 The important bits are the size of your print bed.  I assume a pretty big print bed, sorry.  Maybe you can provide a PR for splitting it?  I didn't want any weak points.
 
-You need to make sure your bolt will fit through the bearing!  The model does not care...
+You need to make sure your bolt will fit through the bearing!  The model does not care...  See the TEST: Hardware section for parameters to tweak.  In addition you may want to adjust the width and length of the tracker.  This can be done with:
 
-- tracker_radius = how far away the center of the rod is from the hinge
-- hinge_diameter = how wide the bolt at the hinge is
-- hinge_length = how wide the hinge is, probably a bit shorter than your bolt length to allow for washers and nut
-- bearing_diameter = the hinge bearing outer diameter
-- bearing_height = height of the bearing
-- tripod_bolt_diameter = diameter of rod/bolt/whatever that attaches to the tripod
-- camera_bolt_diameter = diameter of the rod/bolt/whatever that attaches to the camera
-- rod_diameter = diameter of the threaded rod
+- `tracker_radius` = how far away the center of the rod is from the hinge
+- `hinge_length` = how wide the hinge is, probably a bit shorter than your bolt length to allow for washers and nut
 
-You can use the `part` parameter to get just the model for the **"top"** or **"bottom"**.
+### ULN2003 Case
 
-### ULN2003 case and lid
-
-File: [tracker.scad](src/scad/tracker.scad)
-Parts: **ULN2003: Case**, **ULN2003: Lid**
-STL: [ULN2003-case.stl](src/stl/ULN2003-case.stl), [ULN2003-lid.stl](src/stl/ULN2003-lid.stl)
+- File: [tracker.scad](src/scad/tracker.scad)
+- Parts: **ULN2003: Case**, **ULN2003: Lid**
+- STL: [ULN2003-case.stl](src/stl/ULN2003-case.stl), [ULN2003-lid.stl](src/stl/ULN2003-lid.stl)
 
 Shouldn't need any editing.  This is a simple case with a lid held by friction.  It has slots in the side for wires.  Mount to the tracker as you want.. glue, velcro, weld, whatever.
 
-### Raspberry Pi case
+### Raspberry Pi Case
 
-Not included.  Print what you like.  Attach to tracker.
+Not included.  Print what you like.  Attach to tracker.  Examples:
+
+- [Raspberry Pi Pico Case](https://www.thingiverse.com/thing:4733137)
+- [Raspberry Pi 3 (B/B+), Pi 2 B, and Pi 1 B+ case with VESA mounts and more](https://www.thingiverse.com/thing:922740)
+- [Raspberry Pi 4B Case](https://www.thingiverse.com/thing:3793664)
 
 ## Print Order
 
-I feel it's important to know what to print in what order so you can test and tune for the final product.  I won't get into the details of any adjusments yet but this is the rough outline of what I highly **highly** recommend you do:
+I feel it's important to know what to print in what order so you can test and tune for the final product.  See the [TEST models](#TESTmodels) second for tweaking parameters.  I highly **highly** recommend this order.  This is also the order of parts in Customizer..
 
-1. Print TESTER-hardware.
-2. Verify all hardware works.  See sub-section [Using TESTER-hardware](#using-tester-hardware)
-3. If adjustments are needed, make adjustments and go back 2 steps (print TESTER-hardware again)
-4. Print gears.
-5. Print TESTER-gears.
-6. Verify gears fit on tester.  See sub-section [Using TESTER-gears](#using-tester-gears)
-7. If adjustments are needed, make adjustments and go back 2 steps (print TESTER-gears again)
-9. Print tracker top and bottom.
+1. Print "TEST: Hardware".
+2. Verify all hardware works.  See [TEST models](#test-models).
+3. If adjustments are needed, make adjustments and go back 2 steps.
+4. Print "GEAR: Stepper" and "GEAR: Rod".
+5. Print "TEST: Gears".
+6. Verify gears fit on tester.  See [TEST models](#test-models).
+7. If adjustments are needed, make adjustments and go back 2 steps.
+9. Print "TRACKER: Top" and "TRACKER: Bottom".
 10. [Assemble!](#assembly)
-
-### Using TESTER
 
 # Assembly
 
@@ -226,7 +258,9 @@ Follow the sub-sections in order...
 1. Make sure the bottom plate is smooth where the 43 tooth gear will rest.
 1. Make sure the bottom plate's rod hole is smooth but don't make it too wide!
 1. Cleanup the bottom plate bearing support.  Don't get it so the bearing can be hand pressed in, you can do that with the bolt and a few larger washers
-1. Cleanup the top plate hinge bolt support
+1. Cleanup teeth on all gears.  Do not take off much material but make sure there are no odd protrusions that will cause gears to push each other and move the tracker.
+1. Cleanup the inside of the stepper gear so it fits on the stepper motor.
+1. Generally cleanup anything else.. 
 
 ## Bearings
 
@@ -236,7 +270,7 @@ To press them in stach washers such that the biggest washer is on the outer race
 
 Remove bolt and repeat for the other bearing.
 
-Here are some example pictures of me testing this process on the hardware test print.
+Here are some example pictures of me testing this process on the hardware test print.  Note this doesn't have the simple finder test print.  Flip the bolt around the other direction if that bumps into the bolt.
 
 ![Bearing Press 1](images/bearing-press-1.jpg)
 ![Bearing Press 2](images/bearing-press-2.jpg)
@@ -306,7 +340,13 @@ The drive controller and Raspberry Pi installation I leave to you.  Just make su
 1. the threaded rod will not hit them
 1. they are in a good location when the tracker is both fully closed AND fully open
 
+# Wiring
+
+**TODO**
+
 # Code
+
+**TODO** 
 
 File: [stepper.py](src/python/stepper.py)
 
@@ -339,7 +379,3 @@ And put the following at the end of the crontab:
 ```shell
 @reboot python /home/pi/stepper.py
 ```
-
-
-# Assembly
-

@@ -1,4 +1,5 @@
-part = "both"; // [bottom:"Tracker Bottom",top:"Tracker Top",both:"Top and Bottom",bottom_with_gears:"Bottom with Gears",gear43:"Threaded Rod Gear",gear10:"Stepper Gear",test_hardware:"TESTER: Hardware",test_gears:"TESTER: Gears",test_finder:"TESTER: Finder",support_hinge_bolt:"SUPPORT: Hinge Bolt",support_bearing:"SUPPORT: Bearing"]
+part = "both"; // [test_hardware:"TEST: Hardware",gear_rod:"GEAR: Rod",gear_stepper:"GEAR: Stepper",test_gears:"TEST: Gears",support_bearing:"SUPPORT: Bearing",top:"TRACKER: Top",bottom:"TRACKER: Bottom",debug_bottom:"DEBUG: Bottom",debug_tracker:"DEBUG: Tracker"]
+
 
 /* [Tracker] */
 
@@ -30,6 +31,9 @@ camera_bolt_diameter = 9.6;
 // diameter of the threaded rod, add some since the rod must fit through without threading
 rod_diameter = 7;
 
+// angel to cut out for the curve in the rod (bottom plate only)
+rod_T=35;
+
 /* [Gear: General] */
 
 // The thickness of the tooth at the "pitch circle".
@@ -37,7 +41,7 @@ gear_tooth_thickness=2.5;
 
 gear_tooth_space=1.9;
 
-// Width of the top of the tooth, the "top land".  This is NOT the "face width".
+// Width of the part_top of the tooth, the "part_top land".  This is NOT the "face width".
 gear_tooth_tip_width=0.5;
 
 // Depth of a tooth.  "Whole" includes clearance space.
@@ -56,14 +60,11 @@ gear43_tooth_count=43;
 // Height of the gear overall.
 gear43_height=7.5;
 
-// Size of the shaft hole.
-gear43_shaft_diameter=6.5;
-
 // Size of hex nut hole.
 gear43_nut_width=11.5;
 
 // Height of the hex hole recess in the gear.  Consider using 2 nuts for stability, but they must be at least 1/6 turn offset (not touching! they'll bind on the curved rod)
-gear43_nut_height=12;
+gear43_nut_height=6;
 
 gear43_nut_body_diameter=20;
 
@@ -120,7 +121,7 @@ stepper_motor_diameter = 28;
 
 stepper_motor_height = 21;
 
-// distance from top of motor to the top of usable thread on the gear
+// distance from part_top of motor to the part_top of usable thread on the gear
 stepper_motor_to_gear_height = 22;
 
 stepper_gear_diameter = 22;
@@ -139,9 +140,8 @@ tracker_balance_x=tracker_length*0.33;
 tracker_balance_T=atan((hinge_length/2-tracker_extra_length)/(tracker_length-tracker_balance_x-tracker_extra_length));
 
 
-// Gears are set to meet at the "pitch" circle.  Adding a little hard coded slop or imperfections push / shake things in bad ways.
-gear_offset_slop=1;
-gear_offset=(gear10_pitch_d+gear43_pitch_d)/2+gear_offset_slop;
+// Gears are set to meet at the "pitch" circle ideally.  We allow for adjustment so this is just to center for those adjustments.
+gear_offset=(gear10_pitch_d+gear43_pitch_d)/2;
 
 // Height of the gear overall.
 gear10_height=tracker_thickness+gear43_height;
@@ -163,7 +163,7 @@ module cut_rod_hole_bottom()
             translate([0,0,-tracker_thickness*3])
             cylinder(d=rod_diameter,h=1);
             
-            rotate([0,35,0])
+            rotate([0,rod_T,0])
             translate([0,0,-tracker_thickness*3])
             cylinder(d=rod_diameter,h=1);
         }
@@ -192,7 +192,7 @@ module part_bearing_housing()
             cube([tracker_length*0.2,hinge_length/2,tracker_thickness]);
         }
         
-        // cut out room for the tracker top
+        // cut out room for the tracker part_top
         translate([-1,bearing_height,-1])
         cube([tracker_length,hinge_length-bearing_height*2,tracker_thickness+hinge_housing_diameter]);
 
@@ -203,7 +203,7 @@ module part_bearing_housing()
     }
 }
 
-module bottom()
+module part_bottom()
 {
     union()
     {
@@ -247,7 +247,7 @@ module bottom()
     }
 }
 
-module part_hinge_bolt_housing(h)
+module subpart_hinge_bolt_housing(h)
 {
     rotate([-90,0,0])
     cylinder(d=hinge_bolt_housing_diameter,h=h);
@@ -260,20 +260,7 @@ module cut_hinge_bolt()
     cylinder(d=hinge_bolt_diameter,h=hinge_length*1.1);
 }
 
-module support_hinge_bolt()
-{
-    color("red")
-    difference()
-    {
-        translate([-(hinge_bolt_housing_diameter-hinge_thickness)/2,0,0])
-        cube([hinge_bolt_housing_diameter-hinge_thickness,bearing_height,hinge_housing_diameter/2-hinge_bolt_housing_diameter/2+hinge_thickness]);
-
-        translate([0,-1,hinge_housing_diameter/2])
-        part_hinge_bolt_housing(h=bearing_height*2);
-    }
-}
-
-module support_bearing()
+module part_support_bearing()
 {
     color("red")
     translate([hinge_housing_diameter/2,0,0])
@@ -288,7 +275,7 @@ module support_bearing()
     }
 }
 
-module part_finder(l=top_width)
+module subpart_finder(l=top_width,trans=true)
 {
     offset_x=(hinge_housing_diameter-hinge_bolt_housing_diameter)/2;
     od=10;
@@ -297,7 +284,7 @@ module part_finder(l=top_width)
     recess_w=10.6;
     recess_h=2.5;
     
-    translate([-offset_x,(hinge_length-l)/2,hinge_housing_diameter-w])
+    translate([trans?-offset_x:0,trans?(hinge_length-l)/2:0,trans?hinge_housing_diameter-w:0])
     difference()
     {
         cube([offset_x+od,l,w]);
@@ -318,7 +305,7 @@ module part_finder(l=top_width)
     }
 }
 
-module top()
+module part_top()
 {
     difference()
     {
@@ -326,18 +313,18 @@ module top()
         {
             // bolt housing
             translate([hinge_housing_diameter/2,bearing_height,hinge_housing_diameter/2])
-            part_hinge_bolt_housing(h=hinge_length-bearing_height*2);
+            subpart_hinge_bolt_housing(h=hinge_length-bearing_height*2);
             
             // main body
             translate([(hinge_housing_diameter-hinge_bolt_housing_diameter)/2,(hinge_length-top_width)/2,hinge_housing_diameter-tracker_thickness])
             cube([tracker_length+tracker_extra_length-hinge_housing_diameter/2+hinge_bolt_housing_diameter/2,top_width,tracker_thickness]);
 
-            // camera mount housing (flush to top so we can flip and print flat)
+            // camera mount housing (flush to part_top so we can flip and print flat)
             translate([tracker_balance_x,(hinge_length-top_width)/2,hinge_housing_diameter-camera_bolt_housing_diameter/2])
-            part_camera_bolt_housing();
+            subpart_camera_bolt_housing();
 
             // quick finder, it has a flat surface, a tube (naked eye), and can attach an ez-finder red dot
-            part_finder();
+            subpart_finder();
         }
         
         // cut out the hinge bolt
@@ -371,7 +358,7 @@ module cut_rod_hole_top()
     cylinder(d=rod_diameter,h=tracker_thickness*2);
 }
 
-module part_camera_bolt_housing(h=top_width)
+module subpart_camera_bolt_housing(h=top_width)
 {
     rotate([-90,0,0])
     cylinder(d=camera_bolt_housing_diameter,h=h);
@@ -384,7 +371,7 @@ module cut_camera_bolt()
     cylinder(d=camera_bolt_diameter,h=hinge_length);
 }
 
-module test_hardware()
+module part_test_hardware()
 {
     test_x=tracker_length*0.23;
     test_y=max(tripod_bolt_diameter,camera_bolt_diameter)*3;
@@ -402,18 +389,24 @@ module test_hardware()
             
             // camera bolt test
             translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness])
-            part_camera_bolt_housing(h=test_y);
+            subpart_camera_bolt_housing(h=test_y);
             
             // hinge bolt test
             translate([hinge_housing_diameter+camera_bolt_housing_diameter+max(rod_diameter,tripod_bolt_diameter)+rod_diameter*1.5+hinge_bolt_housing_diameter/2,0,hinge_bolt_housing_diameter/2])
-            part_hinge_bolt_housing(h=test_y);
+            subpart_hinge_bolt_housing(h=test_y);
+
+            // basic scope thinggie, set trans so it's on 0,0,0 and we can move it
+            // note this finder setup hard codes some things, I didn't genearlize so having to hard code here too.. ugly!
+            finder_y=10;
+            translate([(hinge_housing_diameter-hinge_bolt_housing_diameter)/2+10,test_y-finder_y,0])
+            subpart_finder(l=finder_y,trans=false);
         }
         
         // cut camera bolt
-            translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness])
+        translate([hinge_housing_diameter+camera_bolt_housing_diameter/2,0,camera_bolt_diameter/2+hinge_thickness])
         cut_camera_bolt();
                 
-        // rod test, top
+        // rod test, part_top
         translate([hinge_housing_diameter+camera_bolt_housing_diameter+tripod_bolt_diameter/2,test_y-(test_y-bearing_height)*3/4,0])
         cut_rod_hole_top();
 
@@ -435,7 +428,7 @@ module test_hardware()
     // scope mount..
 }
 
-module test_gears()
+module part_test_gears()
 {
     // create bare outline of rod hole and stepper motor holes
     // use hull and minkowski to create a stepper mount plate
@@ -536,15 +529,6 @@ module cut_stepper_motor()
     cut_stepper_gear();
 }
 
-module pie_slice(id,od,h,degrees=45)
-{
-    t_x=id<0?0:id/2;
-    rotate_extrude(angle=degrees,convexity=2)
-    translate([t_x,0,0])
-    square([(od-id)/2,h],false);
-}
-
-
 /*
 w = width
 h = height
@@ -570,7 +554,7 @@ module cut_hex(w,h,s=6)
 }
 
 
-module part_gear_43() 
+module part_gear_rod() 
 {
     // 1. create the teeth
     // 2. fill in the middle
@@ -622,7 +606,7 @@ module part_gear_43()
         }
 
         // cut shaft
-        cylinder(d=gear43_shaft_diameter,h=gear43_height*2,center=true);
+        cylinder(d=rod_diameter,h=gear43_height*2,center=true);
 
         // cut nut
         translate([0,0,nut_offset_z])
@@ -630,7 +614,7 @@ module part_gear_43()
     }
 }
 
-module part_gear_10()
+module part_gear_stepper()
 {
     // close to the 43 tooth gear but..
     // - taller
@@ -710,34 +694,30 @@ module part_gear_10()
     }
 }
 
-if (part == "top") {
+if (part == "test_hardware") {
+    part_test_hardware();
+} else if (part == "gear_rod") {
+    part_gear_rod();
+} else if (part == "gear_stepper") {
+    part_gear_stepper();
+} else if (part == "test_gears") {
+    part_test_gears();
+} else if (part == "support_bearing") {
+    part_support_bearing();
+} else if (part == "top") {
     rotate([180,0,0])
-    top();
+    part_top();
 } else if (part == "bottom") {
-    bottom();
-} else if (part == "bottom_with_gears") {
-    bottom();
+    part_bottom();
+} else if (part == "debug_bottom") {
+    part_bottom();
     
     translate([hinge_housing_diameter/2+tracker_radius,hinge_length/2,tracker_thickness])
-    part_gear_43();
+    part_gear_rod();
     
     translate([hinge_housing_diameter/2+tracker_radius-gear_offset,hinge_length/2,0])
-    part_gear_10();
-} else if (part == "both") {
-    top();
-    bottom();
-} else if (part == "test_hardware") {
-    test_hardware();
-} else if (part == "test_gears") {
-    test_gears();
-} else if (part == "test_finder") {
-    part_finder(l=10);
-} else if (part == "gear43") {
-    part_gear_43();
-} else if (part == "gear10") {
-    part_gear_10();
-} else if (part == "support_hinge_bolt") {
-    support_hinge_bolt();
-} else if (part == "support_bearing") {
-    support_bearing();
-} 
+    part_gear_stepper();
+} else if (part == "debug_tracker") {
+    part_top();
+    part_bottom();
+}
