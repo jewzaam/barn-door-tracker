@@ -1,31 +1,51 @@
 import RPi.GPIO as GPIO
 import time
+import math
 
-debug = True
+debug = False
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-enable_pin = 18
+
+# To calculate target revolutions per minute of the rod gear we need...
+tracker_radius_mm=200.0
+tracker_threads_per_mm=20.0/25.4 # 20 threads per inch
 
 # Order in datasheet: orange, yellow, pink, blue, red (always 0)
 # https://components101.com/motors/28byj-48-stepper-motor
  
+gpio_power = 18
+
 # pins in order per data sheet: orange, yellow, pink, blue
-Pins = [17,24,4,23]
+gpio_coils=[17,24,4,23]
 
-# datasheet has stride angle at 5.625, but this is not quite right.
-motor_stride_angle=5.63 # degrees per step
-motor_gear_ratio=64 # 64:1 internal gear ratio (motor to shaft)
-motor_steps_per_rev = 360/motor_stride_angle * motor_gear_ratio
+# Motor data:
+motor_stride_angle=5.625 # degrees per step
+motor_gear_ratio=64.0 # 64:1 internal gear ratio (motor to shaft)
 
-external_gear_ratio = 10.0/43.0 # motor drives 10 tooth gear, driving 43 tooth gear
-external_steps_per_rev = motor_steps_per_rev / external_gear_ratio
+# Gear data:
+external_gear_stepper=10.0
+external_gear_rod=43.0
 
-# goal is 1 rev per minute.  could adjust to be flexible if needed by adding a param for the seconds
-seconds_per_step = 60.0 / external_steps_per_rev
-ms_per_step = seconds_per_step * 1000.0
+# Steps per revolution:
+motor_steps_per_rev = 360.0/motor_stride_angle * motor_gear_ratio
+external_steps_per_rev = motor_steps_per_rev / (external_gear_stepper / external_gear_rod)
 
-tested_initial_delay_ms=3.3
+# Calculate initial stepper delay.
+target_rev_per_minute=(tracker_radius_mm*2*math.pi/1440.0)/tracker_threads_per_mm
+target_steps_per_minute=external_steps_per_rev*target_rev_per_minute
+target_minutes_per_step=(1/target_steps_per_minute)
+target_ms_per_step=target_minutes_per_step*60000.0
+
+if debug:
+    print("tracker_threads_per_mm: {}".format(tracker_threads_per_mm))
+    print("motor_steps_per_rev: {}".format(motor_steps_per_rev))
+    print("external_steps_per_rev: {}".format(external_steps_per_rev))
+    print("target_rev_per_minute: {}".format(target_rev_per_minute))
+    print("target_steps_per_minute: {}".format(target_steps_per_minute))
+    print("target_minutes_per_step: {}".format(target_minutes_per_step))
+    print("target_ms_per_step: {}".format(target_ms_per_step))
+    print("")
 
 # adjust if different
 Sequence = [
@@ -41,20 +61,20 @@ Sequence = [
 SequenceCount = len(Sequence)
 
 def startup():
-    GPIO.setup(enable_pin, GPIO.OUT)
-    for pin in Pins:
+    GPIO.setup(gpio_power, GPIO.OUT)
+    for pin in gpio_coils:
         GPIO.setup(pin, GPIO.OUT)
     # go ahead and turn on power
-    GPIO.output(enable_pin, 1)
+    GPIO.output(gpio_power, 1)
 
 def shutdown():
-    for pin in Pins:
+    for pin in gpio_coils:
         GPIO.output(pin, 0)
-    GPIO.output(enable_pin, 0)
+    GPIO.output(gpio_power, 0)
 
 def setOutput(values):
-    for i in range(len(Pins)):
-        GPIO.output(Pins[i], values[i])
+    for i in range(len(gpio_coils)):
+        GPIO.output(gpio_coils[i], values[i])
 
 def calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms,end_time_ms):
     calibrated_delay_ms = step_delay_ms
@@ -70,8 +90,10 @@ def calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms
     calibrated_delay_ms = (calculated_delay_ms + step_delay_ms) / 2
 
     if debug:
+        print("step_delay_ms: {}".format(step_delay_ms))
         print("step_count: {}".format(step_count))
         print("ahead_ms: {}".format(actual_duration_ms - expected_duration_ms))
+        print("momentary_error: {} %".format(math.floor((1-actual_duration_ms/expected_duration_ms)*10000.0)/100.0))
         print("calibration_factor: {}".format(calibration_factor))
         print("calibrated_delay_ms: {}".format(calibrated_delay_ms))
 
@@ -79,7 +101,7 @@ def calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms
 
 def forward():
     # initial delay is the calculated time per step
-    step_delay_ms = tested_initial_delay_ms
+    step_delay_ms = target_ms_per_step
 
     # capture start time for calibration
     start_time_ms = time.time() * 1000.0
@@ -100,7 +122,7 @@ def forward():
 
         if step%calibration_frequency == 0:
             # calibrated_delay(expected_duration_ms,step_delay_ms,step_count,start_time_ms,end_time_ms):
-            expected_duration_ms = calibration_step * ms_per_step # this NEVER changes
+            expected_duration_ms = calibration_step * target_ms_per_step # this NEVER changes
             now = time.time() * 1000.0
             calibrated_delay_ms = calibrated_delay(
                     expected_duration_ms,
@@ -116,9 +138,14 @@ def forward():
             step_delay_ms = calibrated_delay_ms
             if debug:
                 # useful overall stats for verifying calibration is doing what it should: keep the TOTAL drift (delta) down.
-                print("total_delta_ms: {}".format(now - start_time_ms - (step * ms_per_step)))
+                total_time_ms=now-start_time_ms
+                total_delta_ms=now - start_time_ms - (step * target_ms_per_step)
+                total_error_p=math.floor(total_delta_ms/total_time_ms*10000.0)/100.0
                 print("total_steps: {}".format(step))
-                print("total_time_s: {}".format((now-start_time_ms)/1000))
+                print("total_time_ms: {}".format(total_time_ms))
+                print("total_delta_ms: {}".format(total_delta_ms))
+                print("total_error: {} %".format(total_error_p))
+                print("")
 
         time.sleep(step_delay_ms/1000.0)
         step = step + 1

@@ -111,7 +111,7 @@ Hardware I used that is default for the model:
     - NOTE a bolt will work but limits flexibility
 - 2 ea: 3/8" washer
     - for camera mount rod
-- 2 ea: 3/8" nut
+- 3 ea: 3/8" nut
     - for camera mount rod
 - 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
     - the rod you'll bend
@@ -328,25 +328,25 @@ Then...
 
 ### Troubleshoot
 
-If the rod holes do not align it's probably due to over extrusion and filling away material inconsistently between the two bearing holes.  Mine was off by at least 1mm.. I don't what I did wrong but whatever.  Going to make it work!  My solution was to find which hole needed to pivot and slowly sanding with 80 grit sandpaper on a dowel.  The side effect of this was a gap on the back side of one bearing.  Sigh.
+If the rod holes do not align it's probably due to over extrusion and filling away material inconsistently between the two bearing holes.  Mine was off by at least 1mm resulting in a huge misalignment at the end of the tracker.
 
-Print the [mini-wedge.stl](src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
+![Bearing Misaligned](images/bearing-misaligned.jpg)
 
-## Camera Bolt
+I don't know what I did wrong but whatever.  Going to make it work!  My solution was to find which hole needed adjustment and slowly sanding with 80 grit sandpaper on a dowel.  The side effect of this was a gap on the back side of one bearing.
 
-Thread or push your 3/8" bolt through the camera bolt hole.  Tighten as needed.
+![Bearing Gap](images/bearing-gap.jpg)
 
-**NOTE** I find that if this bolt is very long the whole thing will bounce more.  Using a 3/8" threaded rod for this allows you to adjust the length by changing how long the rod is on the camera (polar) side.
+Create and print the [mini-wedge.stl](src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
 
-## Tripod Bolt
-
-This is specific to your tripod.  You may need to replace the bolt you have on the tripod with something longer.  Whatever you have, thread it through the bottom plate hole and secure with a nut.  Consider a T-nut and a shorter bolt if you don't want it protruding.  The T-nut requires a wider hole and could be pressed in after heating (so the tines will melt the plastic when being pushed).
+![Mini Wedges](images/mini-wedges.jpg)
 
 ## Stepper Gear
 
 You may have to push the 10 tooth gear onto the stepper motor.  But if you have to push really hard STOP.  Take the time to file down the inside.  You'll need some small hobby files, but if you have a 3D printer you should get some anyway.  Once it fits down snug but not too snug thread the #6 set screw into one side of the gear.  Optionally use a second #6 set screw.
 
 **NOTE** take care to note if the stepper gear is tilted.  This is easier to do powered, since you can simply eyeball a full rotation and see if it seems the teeth wobble over the course of a rotation.
+
+![Stepper and Gear with Set Screw](images/stepper-with-set-screw.jpg)
 
 ## Stepper (with Gear)
 
@@ -374,6 +374,33 @@ With the threaded rod gear near the end of the curved rod..
 Loosen the stepper bolts and slide it so that the stepper gear is interacting with the threaded rod gear where you want.  This may take some tuning to make sure it's not too loose or tight a fit.
 
 **NOTE** imperfections in the gears may cause things to move around while taking shots.  If you notice things binding see if you can smooth any of the gears or adjust the distance between the stepper and threaded rod gears.
+
+## Camera Bolt
+
+Thread or push your 3/8" bolt through the camera bolt hole.  Tighten as needed.  Attach camera mount on the polar said of the tracker.
+
+If this bolt is very long the whole thing will bounce more.  Using a 3/8" threaded rod for this allows you to adjust the length by changing how long the rod is on the camera (polar) side.
+
+1. install one washer and nut
+2. insert rod into camera hole
+3. install other washer and nut
+4. adjust location based on where you think you want the camera mount
+5. tighten
+6. thread one more nut
+7. install camera mount
+8. lock camera mount by tightening last nut on the base of the camera mount
+
+Be careful not to tighten the nut too much on the camera mount.  Unless you got a really nice one (you didn't did you..) you could break the threads off of the mount.
+
+![Camera Mount](images/camera-mount.jpg)
+
+## Tripod Bolt
+
+This is specific to your tripod.  You may need to replace the bolt you have on the tripod with something longer.  Whatever you have, thread it through the bottom plate hole and secure with a nut.  Consider a T-nut and a shorter bolt if you don't want it protruding.  The T-nut requires a wider hole and could be pressed in after heating (so the tines will melt the plastic when being pushed).
+
+Note my bolt is too long and I plan to cut it short and heat a T-nut to secure it.  Just do what is right for your setup..
+
+![Tripod Mount](images/tripod-mount.jpg)
 
 ## Other Electronics
 
@@ -406,7 +433,14 @@ NOTE this all assumes 28BYJ-48 stepper motor.  If you have a different stepper y
 
 ## Calibration
 
-This script is simple but not trivial.. it does a dynamic calibration of the delay between steps.  It measure actual time vs expected time and adjusts the delay between steps.  It's done the whole time the program runs.  The key is to do a pretty short sampling.  If you do a long sample it ends up oscillating, swingging wider over time from ideal.  The way it is setup right now works very well to dial in to a reasonable margin of error (0.025% or so) and keep it there.
+This script is simple but not trivial.. it does a dynamic calibration of the delay between steps.  It measure actual time vs expected time and adjusts the delay between steps.  It's done the whole time the program runs.  The key is to do a pretty short sampling.  If you do a long sample it ends up oscillating, swingging wider over time from ideal.  The way it is setup right now works very well to dial in to a reasonable margin of error and keep it there.
+
+Note the error is higher on startup because it is based on the ideal data sheet numbers.  In my testing, _within 10 seconds_ the error rate stars hovering around `0.01%` with a few bips higher but overall very good.
+
+To see exactly what is going on you can run with `debug` set to `True` and watch the console output.  Interesting values:
+
+- `momentary_error` = percentage that actual time is off expected time over the last `step_count` steps
+- `total_error` = the overall total error percentage
 
 ## Automatic Start
 
