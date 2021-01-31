@@ -21,9 +21,9 @@ Remove bolt and repeat for the other bearing.
 
 Here are some example pictures of me testing this process on the hardware test print.  Note this doesn't have the simple finder test print.  Flip the bolt around the other direction if that bumps into the bolt.
 
-![Bearing Press 1](images/bearing-press-1.jpg)
-![Bearing Press 2](images/bearing-press-2.jpg)
-![Bearing Press 3](images/bearing-press-3.jpg)
+![Bearing Press 1](../images/bearing-press-1.jpg)
+![Bearing Press 2](../images/bearing-press-2.jpg)
+![Bearing Press 3](../images/bearing-press-3.jpg)
 
 ## Hinge Bolt
 
@@ -44,15 +44,15 @@ Then...
 
 If the rod holes do not align it's probably due to over extrusion and filling away material inconsistently between the two bearing holes.  Mine was off by at least 1mm resulting in a huge misalignment at the end of the tracker.
 
-![Bearing Misaligned](images/bearing-misaligned.jpg)
+![Bearing Misaligned](../images/bearing-misaligned.jpg)
 
 I don't know what I did wrong but whatever.  Going to make it work!  My solution was to find which hole needed adjustment and slowly sanding with 80 grit sandpaper on a dowel.  The side effect of this was a gap on the back side of one bearing.
 
-![Bearing Gap](images/bearing-gap.jpg)
+![Bearing Gap](../images/bearing-gap.jpg)
 
 Create and print the [mini-wedge.stl](src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
 
-![Mini Wedges](images/mini-wedges.jpg)
+![Mini Wedges](../images/mini-wedges.jpg)
 
 ## Stepper Gear
 
@@ -60,7 +60,7 @@ You may have to push the 10 tooth gear onto the stepper motor.  But if you have 
 
 **NOTE** take care to note if the stepper gear is tilted.  This is easier to do powered, since you can simply eyeball a full rotation and see if it seems the teeth wobble over the course of a rotation.
 
-![Stepper and Gear with Set Screw](images/stepper-with-set-screw.jpg)
+![Stepper and Gear with Set Screw](../images/stepper-with-set-screw.jpg)
 
 ## Stepper (with Gear)
 
@@ -106,7 +106,7 @@ If this bolt is very long the whole thing will bounce more.  Using a 3/8" thread
 
 Be careful not to tighten the nut too much on the camera mount.  Unless you got a really nice one (you didn't did you..) you could break the threads off of the mount.
 
-![Camera Mount](images/camera-mount.jpg)
+![Camera Mount](../images/camera-mount.jpg)
 
 ## Tripod Bolt
 
@@ -114,7 +114,7 @@ This is specific to your tripod.  You may need to replace the bolt you have on t
 
 Note my bolt is too long and I plan to cut it short and heat a T-nut to secure it.  Just do what is right for your setup..
 
-![Tripod Mount](images/tripod-mount.jpg)
+![Tripod Mount](../images/tripod-mount.jpg)
 
 ## Other Electronics
 

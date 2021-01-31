@@ -155,7 +155,7 @@ The "TEST: Hardware" model is very busy.  What you're testing and the params to 
     - `rod_diameter`
     - `rod_T`
 
-![TEST Hardware](images/test-hardware.png)
+![TEST Hardware](../images/test-hardware.png)
 
 
 
@@ -241,7 +241,7 @@ In order to use custom support in Cura:
 7. Use "Multiply Object" to add 1 more support
 8. Move and scale as needed to fill the bearing areas
 
-![Tracker with Custom Support in Cura](images/cura-with-custom-support.PNG)
+![Tracker with Custom Support in Cura](../images/cura-with-custom-support.PNG)
 
 ## Print Order
 
