@@ -70,55 +70,36 @@ Make sure your hinge bolt is long enough.  You want the tracker to be around 4 i
 If you don't have mini files yet do yourself a favor and get some.  They make cleanup much easier.  And if you get a set without handles just print some and heat press the file into the plastic!  I have a set similar to this [carbon steel 6 piece-set](https://amazon.com/dp/B07KH8BG1F/).
 
 Hardware I used that is default for the model:
-- 2 ea: 608-ZZ bearings (common for skateboards)
-    - smooth hinge action
-- 1 ea: 5/16" x 5" hex full thread bolt
-    - holds bearings to the top plate of tracker
-- 5 ea: 1/4" washer
-    - 2 for the threaded rod attachment to the top plate
-    - 2 for the hinge, optional
-    - 1 _maybe_ as a spacer under the rod gear
-- 1 ea: 5/16" nut
-    - secure the bolt for the bearings
-- 1 ea: 3/8" threaded rod
-    - secure a camera mount
-    - NOTE a bolt will work but limits flexibility
-- 2 ea: 3/8" washer
-    - for camera mount rod
-- 3 ea: 3/8" nut
-    - for camera mount rod
-- 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
-    - the rod you'll bend
-- 3 ea: 1/4"-20 nut
-    - to hold rod to the top plate
-- 2 ea: 1/4" lock washer (optional)
-    - to hold rod to the top plate
-- 2 ea: 1/4"-20 cap nut (optional)
-    - since you'll probably cut the threaded rod, provides smooth ends
-- 1 ea: M4-0.7 x 8mm set screw
-    - set screw to hold small gear to stepper
-- 2 ea: #8 x 1" bolt
-    - secure stepper to tracker
-- 2 ea: #8 washer
-    - secure stepper to tracker
-- 2 ea: #8 nut
-    - secure stepper to tracker
-- 1 ea: ball head tripod mount
-    - for attaching the camera to the tracker
-    - do not get one with long adjustment rods!
-    - Example: [Neewer Professional 35MM Low-Profile Ball Head 360 Degree Rotatable Tripod Head](https://amazon.com/gp/product/B08FB2Q5RC)
-- 1 ea: 28BYJ-48 stepper motor
-    - motor that does the work
-- 1 ea: ULN2003 driver board
-    - controls the motor based on GPIO signal
-- 1 ea: Raspberry Pi of your choice
-    - runs code that sends GPIO signal
-- 6 ea: F/F jumper wire
-    - wire the Pi to the driver board
-- 1 ea: 5V power supply for Raspberry Pi
-    - power supply for Pi (and through the Pi, the driver board + stepper)
-    - I use the [Anker PowerCord II 20000](https://amazon.com/gp/product/B01LQ81QR0) I have already...
-
+- Hinge
+  - 2 ea: 608-ZZ bearings
+  - 1 ea: 5/16" x 5" hex full thread bolt
+  - 2 ea: 1/4" washer
+  - 1 ea: 5/16" nut
+- Camera Mount
+  - 1 ea: 3/8" threaded rod
+  - 2 ea: 3/8" washer
+  - 3 ea: 3/8" nut
+  - 1 ea: ball head tripod mount
+- Threaded Rod
+  - 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
+  - 2 ea: 1/4"-20 nut
+  - 2 ea: 1/4" washer
+  - 1 ea: 1/4" washer (optional, under gear
+  - 2 ea: 1/4" lock washer (optional)
+  - 2 ea: 1/4"-20 cap nut (optional)
+- Threaded Rod Gear
+  - 1 ea: 1/4"-20 nut
+- Stepper
+  - 2 ea: #8 x 1" bolt
+  - 2 ea: #8 washer
+  - 2 ea: #8 nut
+  - 1 ea: 28BYJ-48 stepper motor
+  - 1 ea: ULN2003 driver board
+  - 1 ea: Raspberry Pi of your choice
+  - 6 ea: F/F jumper wire
+  - 1 ea: 5V power supply for Raspberry Pi
+- Stepper Gear
+  - 1 ea: M4-0.7 x 8mm set screw
 
 3D printed part list:
 - 1 ea: 10 tooth stepper gear
@@ -128,8 +109,6 @@ Hardware I used that is default for the model:
 - 1 ea: Raspberry Pi cases
 
 Also included are 3D prints to test hardware and gears.  Use them!
-- 1 ea: hardware test
-- 1 ea: gear test
 
 ### TEST models
 
