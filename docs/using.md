@@ -17,3 +17,5 @@ When done for the night:
 4. Setup to take darks
 5. While taking darks, take tracker off tripod and cleanup / stow gear
 
+---
+Back to the [Index](00-index.md)!

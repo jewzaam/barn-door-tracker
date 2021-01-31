@@ -61,3 +61,6 @@ And finally other parts.  This includes the camera mount, which is by far the mo
 | Raspberry Pi Pico | $5.00 |
 | 6 x F/F Jumper Wire | $0.49 |
 | [Tripod Head](https://amazon.com/gp/product/B08FB2Q5RC/) | $29.99 |
+
+---
+Back to the [Index](00-index.md)!

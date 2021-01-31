@@ -22,3 +22,5 @@ You'll also notice that it isn't super clean.  And my experience doing this wasn
 
 I wanted to get a better shot and not have to manually manipulate this.  After a bit of research I settled on small stepper motor with controller driven by a Raspberry Pi I had laying around.  I have never used a stepper motor so it was a great excuse to learn even more new things.
 
+---
+Back to the [Index](00-index.md)!

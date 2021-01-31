@@ -50,7 +50,7 @@ I don't know what I did wrong but whatever.  Going to make it work!  My solution
 
 ![Bearing Gap](../images/bearing-gap.jpg)
 
-Create and print the [mini-wedge.stl](src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
+Create and print the [mini-wedge.stl](../src/stl/mini-wedge.stl) and if needed adjust with the [mini-wedge.scad](../src/scad/mini-wedge.scad).  Put in wedges as needed, glue in, and cut flush.  Do this after sanding and with your straight (not yet curved I assume) threaded rod inserted into both the top and bottom plates.  The closer you get this to perfect the better!  Which is why I'm bummed I had to write this section.  But it is what it is!
 
 ![Mini Wedges](../images/mini-wedges.jpg)
 
@@ -123,3 +123,5 @@ The drive controller and Raspberry Pi installation I leave to you.  Just make su
 1. the threaded rod will not hit them
 1. they are in a good location when the tracker is both fully closed AND fully open
 
+---
+Back to the [Index](00-index.md)!

@@ -1,6 +1,6 @@
 # Code
 
-File: [stepper.py](src/python/stepper.py)
+File: [stepper.py](../src/python/stepper.py)
 
 You need to set the right pins based on how you've wired you Pi and the inputs for your hardware.  I don't have CLI arguments, so just crack open the code and edit parameters at the top of the file.  The default values are those used for the explaination in this document.
 
@@ -16,7 +16,7 @@ If you change the stepper, controller, or gear ratio there are more things you n
 
 ## Installation
 
-Copy your version of [stepper.py](src/python/stepper.py) to the Raspberry Pi.  I assume it's in the `/home/pi/` directory.
+Copy your version of [stepper.py](../src/python/stepper.py) to the Raspberry Pi.  I assume it's in the `/home/pi/` directory.
 
 ## Automatic Start
 
@@ -44,3 +44,5 @@ To see exactly what is going on you can run with `debug` set to `True` and watch
 - `momentary_error` = percentage that actual time is off expected time over the last `step_count` steps
 - `total_error` = the overall total error percentage
 
+---
+Back to the [Index](00-index.md)!

@@ -112,9 +112,9 @@ Also included are 3D prints to test hardware and gears.  Use them!
 
 ### TEST models
 
-- File: [tracker.scad](src/scad/tracker.scad)
+- File: [tracker.scad](../src/scad/tracker.scad)
 - Parts: **TEST: Hardware**, **TEST: Gears**
-- STL: [TEST-hardware.stl](src/stl/TEST-hardware.stl), [TEST-gears.stl](src/stl/TEST-gears.stl)
+- STL: [TEST-hardware.stl](../src/stl/TEST-hardware.stl), [TEST-gears.stl](../src/stl/TEST-gears.stl)
 
 This contains two test.  One is a block that you can test the bearing and **all** threaded hardware.  The other you verify placement of gears.  The gear placement model is techincally optional but I liked testing the gears on a quick print (30 minutes) before firing up the full tracker print (15 housr).
 
@@ -146,9 +146,9 @@ The "TEST: Hardware" model is very busy.  What you're testing and the params to 
 
 ### GEAR: Stepper
 
-- File: [tracker.scad](src/scad/tracker.scad)
+- File: [tracker.scad](../src/scad/tracker.scad)
 - Part: **GEAR: Stepper**
-- STL: [gear-stepper.stl](src/stl/gear-stepper.stl)
+- STL: [gear-stepper.stl](../src/stl/gear-stepper.stl)
 
 Only thing you might tweak is the set screw diameter.  I do recommend a set screw as the shaft doesn't have any threads to bite into the stepper gear.  The set screw will ensure alignment of the gear is consistent.  And if you can, put in 2 set screws.  The ones I got were sold in a pack of 2.
 
@@ -156,9 +156,9 @@ Only thing you might tweak is the set screw diameter.  I do recommend a set scre
 
 ### GEAR: Rod
 
-- File: [tracker.scad](src/scad/tracker.scad)
+- File: [tracker.scad](../src/scad/tracker.scad)
 - Part: **GEAR: Rod**
-- STL: [gear-rod.stl](src/stl/gear-rod.stl)
+- STL: [gear-rod.stl](../src/stl/gear-rod.stl)
 
 The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only changing the dimensions for the nut.  You can play around with other factors but make sure you read up on terms!  I used this for reference [Gear Nomenclature](https://en.wikiversity.org/wiki/Gears#/media/File:Gearnomenclature.jpg).
 
@@ -167,9 +167,9 @@ The defaults get you a 43 tooth gear that fits a 1/4" rod.  I suggest only chang
 
 ### TRACKER Top and Bottom
 
-- File: [tracker.scad](src/scad/tracker.scad)
+- File: [tracker.scad](../src/scad/tracker.scad)
 - - Parts: **Tracker Top**, **Tracker Bottom**
-STL: [tracker-top.stl](src/stl/tracker-top.stl), [tracker-bottom.stl](src/stl/tracker-bottom.stl)
+STL: [tracker-top.stl](../src/stl/tracker-top.stl), [tracker-bottom.stl](../src/stl/tracker-bottom.stl)
 
 The important bits are the size of your print bed.  I assume a pretty big print bed, sorry.  Maybe you can provide a PR for splitting it?  I didn't want any weak points.
 
@@ -180,9 +180,9 @@ You need to make sure your bolt will fit through the bearing!  The model does no
 
 ### ULN2003 Case
 
-- File: [tracker.scad](src/scad/tracker.scad)
+- File: [tracker.scad](../src/scad/tracker.scad)
 - Parts: **ULN2003: Case**, **ULN2003: Lid**
-- STL: [ULN2003-case.stl](src/stl/ULN2003-case.stl), [ULN2003-lid.stl](src/stl/ULN2003-lid.stl)
+- STL: [ULN2003-case.stl](../src/stl/ULN2003-case.stl), [ULN2003-lid.stl](../src/stl/ULN2003-lid.stl)
 
 Shouldn't need any editing.  This is a simple case with a lid held by friction.  It has slots in the side for wires.  Mount to the tracker as you want.. glue, velcro, weld, whatever.
 
@@ -207,7 +207,7 @@ This is up to you.  It depends on your printer, how you can remove supports, etc
 - Slicer: Cura LulzBot Edition, version 3.6.0 
 - Supports: Custom
 
-I used the [SUPPORT-bearing.stl](src/stl/SUPPORT-bearing.stl) to only support the bearing holes.  All other holes print fine for me, verified with the [TEST-hardware.stl](src/stl/TEST-hardware.stl).
+I used the [SUPPORT-bearing.stl](../src/stl/SUPPORT-bearing.stl) to only support the bearing holes.  All other holes print fine for me, verified with the [TEST-hardware.stl](../src/stl/TEST-hardware.stl).
 
 **NOTE** it is much quicker to disable automatic slicing while moving around large parts:
 1. Settings -> Configure settings visibility...
@@ -217,8 +217,8 @@ I used the [SUPPORT-bearing.stl](src/stl/SUPPORT-bearing.stl) to only support th
 
 In order to use custom support in Cura:
 
-1. Add [TRACKER-bottom.stl](src/stl/TRACKER-bottom.stl)
-2. Add [SUPPORT-bearing.stl](src/stl/SUPPORT-bearing.stl)
+1. Add [TRACKER-bottom.stl](../src/stl/TRACKER-bottom.stl)
+2. Add [SUPPORT-bearing.stl](../src/stl/SUPPORT-bearing.stl)
 3. Select the SUPPORT-bearing part
 4. On the right, select "Custom" for "Print Setup".
 5. On the left, select "Per Model Settings" (must be in "Custom" for this to be enabled)
@@ -240,6 +240,7 @@ I feel it's important to know what to print in what order so you can test and tu
 6. Verify gears fit on tester.  See [TEST models](#test-models).
 7. If adjustments are needed, make adjustments and go back 2 steps.
 9. Print "TRACKER: Top" and "TRACKER: Bottom".
-10. [Assemble!](#assembly)
+10. [Assemble!](assembly.md)
 
-
+---
+Back to the [Index](00-index.md)!
