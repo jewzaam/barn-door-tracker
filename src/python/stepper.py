@@ -19,6 +19,19 @@ gpio_power = 18
 # pins in order per data sheet: orange, yellow, pink, blue
 gpio_coils=[17,24,4,23]
 
+# adjust if different
+Sequence = [
+    [1,0,0,0],
+    [1,1,0,0],
+    [0,1,0,0],
+    [0,1,1,0],
+    [0,0,1,0],
+    [0,0,1,1],
+    [0,0,0,1],
+    [1,0,0,1],
+]
+SequenceCount = len(Sequence)
+
 # Motor data:
 motor_stride_angle=5.625 # degrees per step
 motor_gear_ratio=64.0 # 64:1 internal gear ratio (motor to shaft)
@@ -47,18 +60,6 @@ if debug:
     print("target_ms_per_step: {}".format(target_ms_per_step))
     print("")
 
-# adjust if different
-Sequence = [
-    [1,0,0,0],
-    [1,1,0,0],
-    [0,1,0,0],
-    [0,1,1,0],
-    [0,0,1,0],
-    [0,0,1,1],
-    [0,0,0,1],
-    [1,0,0,1],
-]
-SequenceCount = len(Sequence)
 
 def startup():
     GPIO.setup(gpio_power, GPIO.OUT)
