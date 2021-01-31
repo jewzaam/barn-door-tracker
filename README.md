@@ -1,6 +1,4 @@
 # Background
-Why isn't this showing up
-
 
 ## Untracked
 When taking pictures of the stars you will get star trails if you don't compensage for the earth's movement.  In some cases this may be a desired shot!  It can be a pretty cool picture.  But for deep sky imaging it's not desired.
@@ -410,17 +408,9 @@ The drive controller and Raspberry Pi installation I leave to you.  Just make su
 1. they are in a good location when the tracker is both fully closed AND fully open
 
 # Wiring
+Clip the 28BYJ-48 stepper straight into the ULN2003 drive controller.  Wire GPIO as shown.  
 
-**TODO**
-
-Maybe some day I'll provide a diagram. My setup is very simliar to [this diagram](https://tutorials-raspberrypi.de/wp-content/uploads/2014/08/uln2003-Steckplatine.png) from [here](https://tutorials-raspberrypi.com/how-to-control-a-stepper-motor-with-raspberry-pi-and-l293d-uln2003a/) BUT ISN'T THE SAME because I plug the stepper straight into the drive controller.
-
-My setup uses the following pins.  
-- `18`: 5V power
-- `17`: orange stepper coil (through the drive controller)
-- `24`: yellow stepper coil (through the drive controller)
-- `4`: pink stepper coil (through the drive controller)
-- `23`: blue stepper coil (through the drive controller)
+![Wiring Diagram](images/wiring.png)
 
 # Code
 

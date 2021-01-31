@@ -17,7 +17,7 @@ tracker_threads_per_mm=20.0/25.4 # 20 threads per inch
 gpio_power = 18
 
 # pins in order per data sheet: orange, yellow, pink, blue
-gpio_coils=[17,24,4,23]
+gpio_coils=[24,23,17,4]
 
 # adjust if different
 Sequence = [
