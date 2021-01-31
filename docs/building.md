@@ -89,7 +89,7 @@ Hardware I used that is default for the model:
     - for camera mount rod
 - 1 ea: 1/4"-20 x 20" threaded rod (20 thread / inch)
     - the rod you'll bend
-- 2 ea: 1/4"-20 nut
+- 3 ea: 1/4"-20 nut
     - to hold rod to the top plate
 - 2 ea: 1/4" lock washer (optional)
     - to hold rod to the top plate
@@ -97,6 +97,12 @@ Hardware I used that is default for the model:
     - since you'll probably cut the threaded rod, provides smooth ends
 - 1 ea: M4-0.7 x 8mm set screw
     - set screw to hold small gear to stepper
+- 2 ea: #8 x 1" bolt
+    - secure stepper to tracker
+- 2 ea: #8 washer
+    - secure stepper to tracker
+- 2 ea: #8 nut
+    - secure stepper to tracker
 - 1 ea: ball head tripod mount
     - for attaching the camera to the tracker
     - do not get one with long adjustment rods!

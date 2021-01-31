@@ -42,7 +42,7 @@ Then...
 
 ### Troubleshoot
 
-If the rod holes do not align it's probably due to over extrusion and filling away material inconsistently between the two bearing holes.  Mine was off by at least 1mm resulting in a huge misalignment at the end of the tracker.
+If the rod holes do not align it's probably due to over extrusion and filing away material inconsistently between the two bearing holes.  Mine was off by at least 1mm resulting in a huge misalignment at the end of the tracker.
 
 ![Bearing Misaligned](../images/bearing-misaligned.jpg)
 
