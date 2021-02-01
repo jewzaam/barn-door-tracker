@@ -34,6 +34,7 @@ target_steps_per_minute=target_mm_per_minute*target_steps_per_mm
 target_ms_per_step=60000.0/target_steps_per_minute
 
 if debug:
+    print("sidereal_day: {}h {}m {}s".format(math.floor(sidereal_day_in_minutes/60.0),math.floor(sidereal_day_in_minutes%60.0),math.floor(6000.0*(sidereal_day_in_minutes-math.floor(sidereal_day_in_minutes))/100)))
     print("external_steps_per_rev: {}".format(external_steps_per_rev))
     print("target_mm_per_minute: {}".format(target_mm_per_minute))
     print("target_steps_per_mm: {}".format(target_steps_per_mm))
