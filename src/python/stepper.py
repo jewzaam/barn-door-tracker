@@ -7,9 +7,39 @@ debug = False
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-# To calculate target revolutions per minute of the rod gear we need...
+# To calculate target revolutions per minute of the rod gear we need.
+# Using "rev" for "revolution", which is the movement up the rod along one thread.
 tracker_radius_mm=200.0
-tracker_threads_per_mm=20.0/25.4 # 20 threads per inch
+tracker_mm_per_rev=25.4/20.0
+
+
+# Motor data:
+motor_stride_angle=5.625 # degrees per step
+motor_gear_ratio=64.0 # 64:1 internal gear ratio (motor to shaft)
+
+# Gear data:
+external_gear_stepper_teeth=10.0
+external_gear_rod_teeth=43.0
+
+# Steps per revolution:
+motor_steps_per_rev = 360.0/motor_stride_angle * motor_gear_ratio
+external_steps_per_rev = motor_steps_per_rev / (external_gear_stepper_teeth / external_gear_rod_teeth)
+
+# Calculate all the things.  Output we need is ms per step (tracker_ms_per_step).
+tracker_circumference=tracker_radius_mm*2*math.pi
+sidereal_day_in_minutes=86164100/60000.0 # sidereal day in ms converted to minutes: http://www.kylesconverter.com/time/days-(sidereal)-to-milliseconds
+target_mm_per_minute=tracker_circumference/sidereal_day_in_minutes
+target_steps_per_mm=external_steps_per_rev/tracker_mm_per_rev
+target_steps_per_minute=target_mm_per_minute*target_steps_per_mm
+target_ms_per_step=60000.0/target_steps_per_minute
+
+if debug:
+    print("external_steps_per_rev: {}".format(external_steps_per_rev))
+    print("target_mm_per_minute: {}".format(target_mm_per_minute))
+    print("target_steps_per_mm: {}".format(target_steps_per_mm))
+    print("target_steps_per_minute: {}".format(target_steps_per_minute))
+    print("target_ms_per_step: {}".format(target_ms_per_step))
+    print("")
 
 # Order in datasheet: orange, yellow, pink, blue, red (always 0)
 # https://components101.com/motors/28byj-48-stepper-motor
@@ -31,34 +61,6 @@ Sequence = [
     [1,0,0,1],
 ]
 SequenceCount = len(Sequence)
-
-# Motor data:
-motor_stride_angle=5.625 # degrees per step
-motor_gear_ratio=64.0 # 64:1 internal gear ratio (motor to shaft)
-
-# Gear data:
-external_gear_stepper=10.0
-external_gear_rod=43.0
-
-# Steps per revolution:
-motor_steps_per_rev = 360.0/motor_stride_angle * motor_gear_ratio
-external_steps_per_rev = motor_steps_per_rev / (external_gear_stepper / external_gear_rod)
-
-# Calculate initial stepper delay.
-target_rev_per_minute=(tracker_radius_mm*2*math.pi/1440.0)/tracker_threads_per_mm
-target_steps_per_minute=external_steps_per_rev*target_rev_per_minute
-target_minutes_per_step=(1/target_steps_per_minute)
-target_ms_per_step=target_minutes_per_step*60000.0
-
-if debug:
-    print("tracker_threads_per_mm: {}".format(tracker_threads_per_mm))
-    print("motor_steps_per_rev: {}".format(motor_steps_per_rev))
-    print("external_steps_per_rev: {}".format(external_steps_per_rev))
-    print("target_rev_per_minute: {}".format(target_rev_per_minute))
-    print("target_steps_per_minute: {}".format(target_steps_per_minute))
-    print("target_minutes_per_step: {}".format(target_minutes_per_step))
-    print("target_ms_per_step: {}".format(target_ms_per_step))
-    print("")
 
 
 def startup():
