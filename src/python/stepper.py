@@ -27,14 +27,14 @@ external_steps_per_rev = motor_steps_per_rev / (external_gear_stepper_teeth / ex
 
 # Calculate all the things.  Output we need is ms per step (tracker_ms_per_step).
 tracker_circumference=tracker_radius_mm*2*math.pi
-sidereal_day_in_minutes=86164100/60000.0 # sidereal day in ms converted to minutes: http://www.kylesconverter.com/time/days-(sidereal)-to-milliseconds
-target_mm_per_minute=tracker_circumference/sidereal_day_in_minutes
+SIDEREAL_DAY_IN_MINUTES=86164100/60000.0 # sidereal day in ms converted to minutes: http://www.kylesconverter.com/time/days-(sidereal)-to-milliseconds
+target_mm_per_minute=tracker_circumference/SIDEREAL_DAY_IN_MINUTES
 target_steps_per_mm=external_steps_per_rev/tracker_mm_per_rev
 target_steps_per_minute=target_mm_per_minute*target_steps_per_mm
 target_ms_per_step=60000.0/target_steps_per_minute
 
 if debug:
-    print("sidereal_day: {}h {}m {}s".format(math.floor(sidereal_day_in_minutes/60.0),math.floor(sidereal_day_in_minutes%60.0),math.floor(6000.0*(sidereal_day_in_minutes-math.floor(sidereal_day_in_minutes))/100)))
+    print("sidereal_day: {}h {}m {}s".format(math.floor(SIDEREAL_DAY_IN_MINUTES/60.0),math.floor(SIDEREAL_DAY_IN_MINUTES%60.0),math.floor(6000.0*(SIDEREAL_DAY_IN_MINUTES-math.floor(SIDEREAL_DAY_IN_MINUTES))/100)))
     print("external_steps_per_rev: {}".format(external_steps_per_rev))
     print("target_mm_per_minute: {}".format(target_mm_per_minute))
     print("target_steps_per_mm: {}".format(target_steps_per_mm))
