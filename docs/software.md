@@ -1,4 +1,4 @@
-# Code
+# Hardware & Software
 
 I staretd out developing this for a Raspberry Pi 4b.  The code is still there (see [stepper.py](../src/python/stepper.py)) but I have moved on to the Raspberry Pi Pico which is a little different.  This document assumes:
 
@@ -6,33 +6,6 @@ I staretd out developing this for a Raspberry Pi 4b.  The code is still there (s
 - You are wiring it the same way documented here
 - You can change the code if you use another device or wire it differently
 
-# Raspberry Pi Pico
-
-- File: [main.py](../src/microPython/main.py)
-- Config: [stepper.yaml](../src/microPython/stepper.yaml)
-
-The code doesn't hard wire pins but you do have to configure it.  See the [Calibration](#calibration) section on why you don't need to tune the stepper delay.
-
-So just plug in your configuration in [stepper.yaml](../src/microPython/stepper.yaml) and ship the [microPython](../src/microPython/) directory to your Raspberry Pi Pico.
-
-How?  I will leave that to you but provide the tools I used.  I decided to go the VSCode route which is GREAT!  I have one IDE to manage the code, run it remotely on the Pico, and finally to upload it to the Pico.  The sites I found helpful:
-
-- [Raspberry Pi Pico: Getting Started](https://www.raspberrypi.org/documentation/pico/getting-started/)
-- [How To Solder Pins to Your Raspberry Pi Pico](https://www.tomshardware.com/how-to/solder-pins-raspberry-pi-pico)
-- [Developing for the Raspberry Pi Pico in VS Code — Getting Started](https://medium.com/all-geek-to-me/developing-for-the-raspberry-pi-pico-in-vs-code-getting-started-6dbb3da5ba97)
-- [MicroPython libraries](https://docs.micropython.org/en/latest/library/index.html)
-
-Once you get everything uploaded to the Pico it pretty much instantly starts when plugged into USB power.  The Raspberry Pi 4b I used originally took a while.  And it's cheaper, smaller, and MUCH cooler when running.
-
-## Wiring
-
-I chose this layout before physically using it.  It works but there is wire crossover which irks me.  The pinout is available on  [Raspberry Pi Pico: Getting Started](https://www.raspberrypi.org/documentation/pico/getting-started/):
-
-![Raspberry Pi Pico Pinout](https://www.raspberrypi.org/documentation/pico/getting-started/static/15243f1ffd3b8ee646a1708bf4c0e866/Pico-R3-Pinout.svg)
-
-And the layout I have gone with is:
-
-![Raspberry Pi Pico Wiring](../images/wiring-piPico.png)
 
 ## Calibration
 
@@ -41,6 +14,12 @@ You do not have to do calibartion!  This is done automatically.  This section ju
 This script is simple but not trivial.. it does a dynamic calibration of the delay between steps.  It measure actual time vs expected time and adjusts the delay between steps.  It's done the whole time the program runs.  The key is to do a pretty short sampling.  If you do a long sample it ends up oscillating, swingging wider over time from ideal.  The new step delay is also adjusted to be only 50% of the difference between what would have been ideal and what is currently set.  This simply means a slower change in the delay, again to tamp down on ocillations.  The way it is setup right now works very well to dial in to a reasonable margin of error and keep it there.
 
 Note the error is higher on startup because it is based on the ideal data sheet numbers.  In my testing, _within 10 seconds_ the error rate stars hovering around `0.01%` with a few bips higher but overall very good.
+
+## Pico LED
+
+The Pico on-board LED will be on until calibration of step delay reaches the calibration target.  This way you know you're good to start with pictures.  Also, the LED lets you know it actually is on, in case the drive controller is misbehaving or wires have come loose.
+
+Calibration target will eventually be configuration driven.  Right now it is 0.1%.
 
 ## Custom Sleep
 

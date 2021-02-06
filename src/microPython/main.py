@@ -46,8 +46,6 @@ def diff_ms(now, then):
     return time.ticks_diff(now, then) / 1000.0
 
 def usleep(us,accuracy=0.99):
-    global output
-    
     start = time.ticks_us()
     diff = 0
     now = start
@@ -132,7 +130,7 @@ def calibrate_delay(expected_duration_ms,step_delay_ms,step_count,start_tick,end
 
     return calibrated_delay_ms
 
-def forward(step_delay_ms,start_tick):
+def forward(calibration_target,step_delay_ms,start_tick):
     global step
 
     # the value we get for step delay is our ideal / target value
@@ -175,6 +173,11 @@ def forward(step_delay_ms,start_tick):
             calibration_step = step % SequenceCount
             calibration_start_tick = now_tick
 
+            # turn off Pico LED once we're within calibration target
+            calibration_p=abs(1.0 - (step_delay_ms / calibrated_delay_ms))
+            if calibration_p < calibration_target:
+                pin_led.off()
+
             step_delay_ms = calibrated_delay_ms
             if debug:
                 # useful overall stats for verifying calibration is doing what it should: keep the TOTAL drift (delta) down.
@@ -202,12 +205,13 @@ def forward(step_delay_ms,start_tick):
 
 if __name__ == '__main__':
     # TODO load the initial step delay from configuration
+    calibration_target=0.001
     step_delay_ms=4.633737
     start_tick=tick()
     try:
         # fire up power and pico's LED (just so we know it should be doing something)
         startup()
-        forward(step_delay_ms,start_tick)
+        forward(calibration_target,step_delay_ms,start_tick)
     except KeyboardInterrupt:
         pass
     finally:
