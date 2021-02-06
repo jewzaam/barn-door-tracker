@@ -1,0 +1,119 @@
+
+>>> %Run -c $EDITOR_CONTENT
+sidereal_day: 23h 56m 4s
+external_steps_per_rev: 17612.8
+target_mm_per_minute: 0.8750539
+target_steps_per_mm: 13868.35
+target_steps_per_minute: 12135.55
+target_ms_per_step: 4.944152
+
+STARTUP
+calibration_start_tick: 170566480
+calibration_frequency: 400
+
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1987.028
+step_delay_ms: 4.663062
+step_count: 400
+start_tick: 178714793
+end_tick: 180701821
+calibration_factor: 1.004737
+ahead_ms: 9.367188
+momentary_error: -0.48 %
+calibrated_delay_ms: 4.652071
+
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1981.341
+step_delay_ms: 4.637028
+step_count: 400
+start_tick: 182692355
+end_tick: 184673696
+calibration_factor: 1.001861
+ahead_ms: 3.680176
+momentary_error: -0.19 %
+calibrated_delay_ms: 4.632721
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1974.67
+step_delay_ms: 4.632721
+step_count: 400
+start_tick: 184673696
+end_tick: 186648366
+calibration_factor: 0.9984878
+ahead_ms: -2.990723
+momentary_error: 0.15 %
+calibrated_delay_ms: 4.63623
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1973.638
+step_delay_ms: 4.63623
+step_count: 400
+start_tick: 186648366
+end_tick: 188622004
+calibration_factor: 0.9979659
+ahead_ms: -4.022827
+momentary_error: 0.2 %
+calibrated_delay_ms: 4.640954
+
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1975.904
+step_delay_ms: 4.632174
+step_count: 400
+start_tick: 190607177
+end_tick: 192583081
+calibration_factor: 0.9991117
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1962.925
+step_delay_ms: 4.632174
+step_count: 400
+start_tick: 192583081
+end_tick: 194546006
+calibration_factor: 0.9925489
+ahead_ms: -14.73572
+momentary_error: 0.74 %
+calibrated_delay_ms: 4.64956
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1987.023
+step_delay_ms: 4.64956
+step_count: 400
+start_tick: 194546006
+end_tick: 196533029
+calibration_factor: 1.004734
+ahead_ms: 9.362183
+momentary_error: -0.48 %
+calibrated_delay_ms: 4.638607
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1986.204
+step_delay_ms: 4.638607
+step_count: 400
+start_tick: 196533029
+end_tick: 198519233
+calibration_factor: 1.00432
+ahead_ms: 8.543213
+momentary_error: -0.44 %
+calibrated_delay_ms: 4.628631
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1973.307
+step_delay_ms: 4.628631
+step_count: 400
+start_tick: 198519233
+end_tick: 200492540
+calibration_factor: 0.9977985
+ahead_ms: -4.35376
+momentary_error: 0.22 %
+calibrated_delay_ms: 4.633737
+
+expected_duration_ms: 1977.661
+actual_duration_ms: 1977.603
+step_delay_ms: 4.633737
+step_count: 400
+start_tick: 200492540
+end_tick: 202470143
+calibration_factor: 0.9999708

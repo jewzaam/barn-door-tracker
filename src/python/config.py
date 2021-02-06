@@ -3,6 +3,8 @@ import time, datetime
 import math
 import yaml
 
+# Utility to configure initial values for the stepper code.
+
 DEBUG = False
 CONFIG_FILENAME="stepper.yaml"
 DEFAULT_CALIBRATION_ITERATIONS=30
@@ -105,7 +107,7 @@ def calculate_step_delay_ms(config):
 
     return target_ms_per_step
 
-def main(argv):
+def make_config(argv):
     global DEBUG
 
     config = load()
@@ -191,6 +193,5 @@ def main(argv):
     # save state    
     save(config)
 
-
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   make_config(sys.argv[1:])
