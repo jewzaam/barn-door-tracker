@@ -6,4 +6,13 @@ All docs are in `docs/` and there is an [Index](docs/00-index.md).  My goal is t
 
 Clear Skies!
 
-![Tracker v3](images/Tracker-v3.png)
+## Real Results!
+
+![M42](images/M42+2021-02-04+DSS+GIMP_1h12m07s+crop.png)
+Canon EOS Rebel SL2, 300mm Lens, ISO1600<br>
+866 x 5 second lights (1 hr 12 min 7 sec)<br>
+This tracker!  (older stepper code that didn't do sidereal days)
+
+Stacked with lights, darks, flats, and bias in [DeepSkyStacker](http://deepskystacker.free.fr/english/index.html)(freeware).<br>Processed in [GIMP](https://www.gimp.org/)(Open Source Software).
+
+And the shot [annotated on Astronomy.net](http://nova.astrometry.net/user_images/4344862#annotated).

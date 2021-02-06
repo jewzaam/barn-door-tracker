@@ -1,8 +1,7 @@
-import time
+import sys, getopt, os.path
+import time, datetime
 import math
-import sys, getopt
 import yaml
-import os.path
 
 DEBUG = False
 CONFIG_FILENAME="stepper.yaml"
@@ -16,6 +15,33 @@ def help():
     print("TODO: help text")
 
 def save(config):
+    # update history
+    if 'calculated_ms' in config['delays']:
+        latest=None
+        if len(config['history']) > 0:
+            latest=config['history'][0]
+
+        # assume structure of history is valid
+
+        # create new history if any delays have changed OR we don't have any history
+        create_history=False
+        if latest is not None:
+            for key in config['delays'].keys():
+                h_value=latest[key]
+                d_value=config['delays'][key]
+                if h_value != d_value:
+                    create_history=True
+                    break
+        else:
+            create_history=True
+
+        if create_history:
+            new_history={}
+            new_history['timestamp']=datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            for key in config['delays'].keys():
+                new_history[key]=config['delays'][key]
+            config['history'].insert(0, new_history)
+
     with open(CONFIG_FILENAME, 'w') as outfile:
         yaml.dump(config, outfile, default_flow_style=False)
 
@@ -24,6 +50,18 @@ def load():
     if os.path.exists(CONFIG_FILENAME):
         with open(CONFIG_FILENAME, 'r') as infile:
             config=yaml.load(infile, Loader=yaml.FullLoader)
+
+    # initialize requrired child objects and arrays
+    objects = ['pins','delays']
+    arrays = ['history']
+
+    for obj in objects:
+        if obj not in config:
+            config[obj]={}
+    for arr in arrays:
+        if arr not in config:
+            config[arr]=[]
+
     return config
 
 def steps_per_revolution(stepper):
@@ -41,7 +79,7 @@ def calculate_step_delay_ms(config):
     radius=float(config['radius'])
     pitch=float(config['pitch'])
     stepper=config['stepper']
-    gear_ratio=config['gear_ratio']
+    gear_ratio=config['gearRatio']
 
     motor_steps_per_rev=steps_per_revolution(stepper)
 
@@ -73,15 +111,14 @@ def main(argv):
     config = load()
 
     try:
-        opts, args = getopt.getopt(argv,"hdc:r:p:s:g:",["help","debug","calibrate=","radius=","pitch=","stepper=","gearratio=","pin_v5=","pin_coils="])
+        opts, args = getopt.getopt(argv,"hdc:r:p:s:g:",
+        ["help","debug","calibrate=","radius=","pitch=",
+        "stepper=","gearRatio=","pin_v5=","pin_stepperCoils="])
     except getopt.GetoptError:
-        print("math.py --calibrate <seconds> --debug")
+        help()
         sys.exit(1)
 
     calculate=False
-
-    if 'pins' not in config:
-        config['pins']={}
 
     valid_config=True
 
@@ -92,7 +129,7 @@ def main(argv):
         elif opt in ("-d", "--debug"):
             DEBUG = True
         elif opt in ("-c", "--calibrate"):
-            calibrate_seconds = arg
+            config['calibrate']['iterations'] = arg
         elif opt in ("-r", "--radius"):
             if 'radius' not in config or config['radius'] != arg:
                 config['radius'] = float(arg)
@@ -105,22 +142,20 @@ def main(argv):
             if 'stepper' not in config or config['stepper'] != arg:
                 config['stepper'] = arg
                 calculate=True
-        elif opt in ("-g", "--gearratio"):
-            if 'gear_ratio' not in config or config['gear_ratio'] != arg:
+        elif opt in ("-g", "--gearRatio"):
+            if 'gearRatio' not in config or config['gearRatio'] != arg:
                 if len(arg.split(":")) != 2:
                     error("invalid format for '{}'".format(opt))
                     valid_config=False
                 else:
-                    config['gear_ratio'] = str(arg)
+                    config['gearRatio'] = str(arg)
                     calculate=True
         elif opt in ("--pin_v5"):
             config['pins']['v5'] = int(arg)
-        elif opt in ("--pin_coils"):
-            config['pins']['coils'] = []
+        elif opt in ("--pin_stepperCoils"):
+            config['pins']['stepperCoils'] = []
             for coil in arg.split(","):
-                config['pins']['coils'].append(int(coil))
-
-    save(config)
+                config['pins']['stepperCoils'].append(int(coil))
 
     # make sure we have all the config
     if 'radius' not in config:
@@ -132,14 +167,14 @@ def main(argv):
     if 'stepper' not in config:
         error("'stepper' not set")
         valid_config=False
-    if 'gear_ratio' not in config:
-        error("'gearratio' not set")
+    if 'gearRatio' not in config:
+        error("'gearRatio' not set")
         valid_config=False
     if 'v5' not in config['pins']:
         error("'pin_v5' not set")
         valid_config=False
-    if 'coils' not in config['pins']:
-        error("'pin_coils' not set")
+    if 'stepperCoils' not in config['pins']:
+        error("'pin_stepperCoils' not set")
         valid_config=False
 
     if not valid_config:
@@ -148,12 +183,13 @@ def main(argv):
 
     if calculate:
         # we have been told something new, calculate from ideal
-        config['delay_ms']=calculate_step_delay_ms(config)
-        save(config)
+        config['delays']['calculated_ms']=calculate_step_delay_ms(config)
 
         # and force a calibration
         calibrate_iterations=DEFAULT_CALIBRATION_ITERATIONS
-    
+
+    # save state    
+    save(config)
 
 
 if __name__ == "__main__":
