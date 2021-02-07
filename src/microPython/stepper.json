@@ -1,46 +1,50 @@
 {
   "debug": false,
+  "start_locked": true,
   "gp_out": {
     "v5": 18,
     "led": 25,
+    "lock": 25,
     "stepper":[28,27,26,22],
     "startup_gp_on":["v5","led"]
   },
   "gp_in": {
-    "forward": -1,
-    "reverse": -1,
-    "stop": -1,
-    "slower": -1,
-    "faster": -1,
-    "lock": -1,
-    "unkock": -1
+    "forward": 3,
+    "reverse": 1,
+    "status": 4,
+    "slower": 0,
+    "faster": 2,
+    "lock": 4
   },
   "controls": {
-    "hold_unlock_s": 5,
-    "hold_lock_s": 5,
+    "hold_lock_s": 2,
     "faster_increment": 0.1,
     "slower_increment": 0.1,
-    "reverse_speed_multiplier": 4
+    "reverse_step_delay_ms": 0.9
   },
   "tracker": {
     "radius": 200,
-    "pitch": 0.7874,
-    "gear_ratio": "10:43",
-    "stepper": {
-      "sequence": [
-        [1,0,0,0],
-        [1,1,0,0],
-        [0,1,0,0],
-        [0,1,1,0],
-        [0,0,1,0],
-        [0,0,1,1],
-        [0,0,0,1],
-        [1,0,0,1]
-      ]
-    }
+    "pitch": 1.27,
+    "gear_ratio": "10:43"
+  },
+  "stepper": {
+    "stride_angle": 5.625,
+    "gear_ratio": "64:1",
+    "max_rpm": 10,
+    "sequence": [
+      [1,0,0,0],
+      [1,1,0,0],
+      [0,1,0,0],
+      [0,1,1,0],
+      [0,0,1,0],
+      [0,0,1,1],
+      [0,0,0,1],
+      [1,0,0,1]
+    ]
   },
   "calibration": {
     "accuracy": 0.001,
     "calibrated_gp_off": ["led"]
-  }
+  },
+  "sidereal_ms": 86164100
 }

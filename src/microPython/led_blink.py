@@ -1,15 +1,14 @@
-from machine import Pin
-import time
+from machine import Pin, Timer
+import utime as time
+led = Pin(25, Pin.OUT)
 
-# simple script to test that you're communicated to the Pico.. blinks the on-board LED
+def blink_fast(timer):
+    start=time.ticks_ms()
+    now=start
+    while time.ticks_diff(now,start) < 5000.0:
+        led.toggle()
+        time.sleep_ms(250)
+        now=time.ticks_ms()
+    print("DONE: blink_fast")
 
-pin_led = Pin(25, Pin.OUT)
-
-try:
-    while True:
-        pin_led.toggle()
-        time.sleep(1.0)
-except KeyboardInterrupt:
-    pass
-finally:
-    pin_led.off()
+Timer().init(mode=Timer.ONE_SHOT, period=0, callback=blink_fast)

@@ -397,6 +397,20 @@ def control_loop():
         print("")
 
     while True:
+        # get latest value for the step delay
+        if ideal_step_delay_ms != control['step_delay_ms']:
+            # snag the new value
+            step_delay_ms=control['step_delay_ms']
+            # reset the ideal
+            ideal_step_delay_ms = step_delay_ms
+            # reset totals since configuration has changed
+            totals['enabled']=False
+            # turn on calibration output (if there is any)
+            for pin_key in config['calibration']['calibrated_gp_off']:
+                pins_out[pin_key].on()
+            # print the current control settings since this changed
+            # we will be calibrating so this small overhead is OK
+            print("control: {}".format(str(control)))
 
         # capture the tick BEFORE changing stepper state.
         # this is used as the starting reference for usleep_from
@@ -406,21 +420,6 @@ def control_loop():
 
         # move the stepper if we are not stopped
         if not control['stop']:
-            # get latest value for the step delay
-            if ideal_step_delay_ms != control['step_delay_ms']:
-                # snag the new value
-                step_delay_ms=control['step_delay_ms']
-                # reset the ideal
-                ideal_step_delay_ms = step_delay_ms
-                # reset totals since configuration has changed
-                totals['enabled']=False
-                # turn on calibration output (if there is any)
-                for pin_key in config['calibration']['calibrated_gp_off']:
-                    pins_out[pin_key].on()
-                # print the current control settings since this changed
-                # we will be calibrating so this small overhead is OK
-                print("control: {}".format(str(control)))
-
             # get the values for each stepper coil and set them, account for reverse
             sequence_index=calibration_step%sequence_len
             if control['reverse']>0:
