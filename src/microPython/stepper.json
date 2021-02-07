@@ -20,7 +20,7 @@
     "hold_lock_s": 2,
     "faster_increment": 0.1,
     "slower_increment": 0.1,
-    "reverse_step_delay_ms": 0.9
+    "reverse_step_delay_ms": 1.0
   },
   "tracker": {
     "radius": 200,
