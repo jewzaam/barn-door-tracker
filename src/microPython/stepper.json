@@ -6,15 +6,39 @@
     "led": 25,
     "lock": 25,
     "stepper":[28,27,26,22],
-    "startup_gp_on":["v5","led"]
+    "startup_gp_on":["v5"]
   },
   "gp_in": {
-    "forward": 3,
-    "reverse": 1,
-    "status": 4,
-    "slower": 0,
-    "faster": 2,
-    "lock": 4
+    "forward": {
+      "gpio": 3,
+      "when": "rising",
+      "callback": "do_forward"
+    },
+    "stop": {
+      "gpio": 1,
+      "when": "rising",
+      "callback": "do_stop"
+    },
+    "slower": {
+      "gpio": 0,
+      "when": "rising",
+      "callback": "do_slower"
+    },
+    "faster": {
+      "gpio": 2,
+      "when": "rising",
+      "callback": "do_faster"
+    },
+    "status": {
+      "gpio": 4,
+      "when": "falling",
+      "callback": "do_status"
+    },
+    "lock": {
+      "gpio": 4,
+      "when": "rising|falling",
+      "callback": "do_lock"
+    }
   },
   "controls": {
     "hold_lock_s": 2,
@@ -41,10 +65,6 @@
       [0,0,0,1],
       [1,0,0,1]
     ]
-  },
-  "calibration": {
-    "accuracy": 0.001,
-    "calibrated_gp_off": ["led"]
   },
   "sidereal_ms": 86164100
 }
