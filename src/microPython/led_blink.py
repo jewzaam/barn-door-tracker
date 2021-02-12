@@ -2,13 +2,20 @@ from machine import Pin, Timer
 import utime as time
 led = Pin(25, Pin.OUT)
 
-def blink_fast(timer):
-    start=time.ticks_ms()
-    now=start
-    while time.ticks_diff(now,start) < 5000.0:
-        led.toggle()
-        time.sleep_ms(250)
-        now=time.ticks_ms()
-    print("DONE: blink_fast")
+blink_count=25
 
-Timer().init(mode=Timer.ONE_SHOT, period=0, callback=blink_fast)
+def blink(timer):
+    global blink_count
+    led.toggle()
+    blink_count-=1
+    print(blink_count)
+    if blink_count<=0:
+        timer.deinit()
+
+t=Timer()
+try:
+    t.init(freq=1, mode=Timer.PERIODIC, period=0, callback=blink)
+    time.sleep(1000)
+finally:
+    led.off()
+    t.deinit()
