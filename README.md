@@ -6,13 +6,18 @@ All docs are in `docs/` and there is an [Index](docs/00-index.md).  My goal is t
 
 Clear Skies!
 
-## Real Results!
+## Tracker in Action
+![Tracker in Action](images/barn-door-tracker.jpg)
+All setup and ready to go.  Battery on left leg, intervalometer on right, and 15 lb weight in the backpack.
 
+## [Orion Nebula](https://www.astrobin.com/4iprt9/)<br>
 ![M42](images/M42+2021-02-04+DSS+GIMP_1h12m07s+crop.png)
 Canon EOS Rebel SL2, 300mm Lens, ISO1600<br>
 866 x 5 second lights (1 hr 12 min 7 sec)<br>
-This tracker!  (older stepper code that didn't do sidereal days)
+[DeepSkyStacker](http://deepskystacker.free.fr/english/index.html) and [GIMP](https://www.gimp.org/).
 
-Stacked with lights, darks, flats, and bias in [DeepSkyStacker](http://deepskystacker.free.fr/english/index.html)(freeware).<br>Processed in [GIMP](https://www.gimp.org/)(Open Source Software).
-
-And the shot [annotated on Astronomy.net](http://nova.astrometry.net/user_images/4344862#annotated).
+## [Flame and Horsehead Nebulas](https://www.astrobin.com/a59dnw/)<br>
+![Flame and Horsehead Nebula](images/Flame-Nebula+2021-02-09+DSS-AP+621x50m50s+SC+32r+crop.png)
+Canon EOS Rebel SL2, 300mm Lens, ISO3200<br>
+621 x 5 second lights (50 min 50 sec)<br>
+[DeepSkyStacker](http://deepskystacker.free.fr/english/index.html) and [Affinity Photo](https://affinity.serif.com/en-us/photo/).

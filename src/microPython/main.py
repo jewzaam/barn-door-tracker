@@ -42,13 +42,6 @@ def load_config():
         config=json.loads(f.read())
     return config
 
-def save_config():
-    config={}
-    with open(WRITE_CONFIG_FILENAME, 'w') as f:
-        f.write()
-        config=json.loads(f.read())
-    return config
-
 def tick():
     # get some tick metric, diff_ms must handle the unit
     return time.ticks_us()
@@ -56,20 +49,6 @@ def tick():
 def diff_ms(now,then):
     # see tick() for units
     return time.ticks_diff(now, then) / 1000.0
-
-def usleep(us,accuracy=0.99):
-    usleep_from(time.ticks_us(),us,accuracy)
-
-def usleep_from(start_tick,us,accuracy=0.99):
-    diff = 0
-    now = start_tick
-    
-    # loop until we're within the given accuracy or have gone over
-    while diff < us and abs(diff/us)<accuracy:
-        now = time.ticks_us()
-        diff = time.ticks_diff(now,start_tick)
-
-    return now
 
 def startup():
     global pins_out,config,logging_filename
@@ -168,8 +147,12 @@ def configure_step_delay_ms():
         print("ideal_step_delay_ms: {}".format(ideal_step_delay_ms))
         print("")
 
-    # NOTE do not log here, it is logged in handler events with more context (aka why)
-    control['step_delay_ms']=ideal_step_delay_ms
+    if control['step_delay_ms']!=ideal_step_delay_ms:
+        # it changed, update our control
+        control['step_delay_ms']=ideal_step_delay_ms
+        # and reset the last_start_tick to remove the last step iteration from totals, as it's now wrong.
+        # note this doesn't matter for functionality of the tracker, just for `tick error` printed on shutdown
+        control['timer']['last_start_tick']=0
 
 def trigger_step(timer):
     global timer_tick
@@ -279,7 +262,6 @@ def do_stop():
     # and do_step will just pick it up again
     control['timer']['last_start_tick']=0
 
-
 def handle_left(pin):
     if control['locked'] or debounce(pin) is None:
         return
@@ -386,9 +368,9 @@ def status_timer(timer):
     if not control['locked']:
         return
 
-    # update our timer to fire periodically (ever 1/4 second, or 4Hz) and toggle the led.
+    # update our timer to fire periodically and toggle the led.
     if status_blink_count>0:
-        timer.init(mode=Timer.PERIODIC,freq=4,callback=status_blink)
+        timer.init(mode=Timer.PERIODIC,freq=config['controls']['status_blink_hz'],callback=status_blink)
 
 def status_blink(timer):
     global status_blink_count
@@ -404,12 +386,11 @@ def print_status():
     timer_count=control['timer']['counter']
     print("")
     print(control)
-    print("timer_count: {}".format(timer_count))
     if timer_count>0:
-        print("tick_average: {}".format(timer_actual_ms/timer_count))
+        print("avg_actual_delay_ms: {}".format(timer_actual_ms/timer_count))
     if timer_actual_ms>0:
         err_p=(1.0-timer_expected_ms/timer_actual_ms)*100.0
-        print("tick error: {}%".format(err_p)) # to 1/1000 of a percent
+        print("total_error_p: {}%".format(err_p)) # to 1/1000 of a percent
 
 if __name__ == '__main__':
     # TODO load the initial step delay from configuration

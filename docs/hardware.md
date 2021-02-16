@@ -38,5 +38,40 @@ And the layout I have gone with is:
 
 ![Raspberry Pi Pico Wiring](../images/wiring-piPico.png)
 
+## Controls
+
+If you have wired up buttons or a switch (I use a [5-way navigation switch](https://www.adafruit.com/product/504)) you can control the speed of the stepper.  The wiring included is what I used with the switch above so I will talk about it in terms of the directions on that switch: up, down, left, down, and center (press).
+
+When the tracker starts you can have it locked by default.  Control this in [stepper.json](../src/microPython/stepper.json) with `.start_locked`.
+
+- hold control = toggle lock state, hold for `.controls.hold_lock_s` seconds
+- up = if unlocked, turn on stepper (forward)
+- down = if unlocked, stop stepper
+- left = if unlocked, speed up stepper by `.controls.faster_increment`
+- right - if unlocked, slow down stepper by `.controls.slower_increment`
+
+Note that faster and slower increments are changes in the configured stepper radius `.tracker.radius`.  The names are not great, sorry.  When you tell this to go faster or slower it is just tweaking the radius and recalculating the step delay.  These values are not written to file.  I had problems getting that to consistently work.
+
+The on-board Pico LED is used to indicate changes...
+
+## Pico LED
+
+The on-board Pico LED (gpio=25) is used to show state and status.
+
+* solid on - tracker controls are unlocked
+* solid off - tracker controls are locked
+* blinking - various information
+
+The LED blinks briefly when increasing or decreasing stepper speed.
+
+The LED blinks in a pattern to indicate how much adjustment there is from the configured value.  This is shown when the stepper goes from **unlocked** to **locked**.  Initially, the LED turns off.  If the stepper is at the default state it immediately blinks 3 times.  If the stepper is faster it stays off for 2 seconds before blinking.  If the stepper is slower it stays off for 10 seconds before blinking.  If faster or slower, after the delay the LED blinks on once for each step above or below the default speed.  
+
+So if you increased speed 5 times and lock controls the LED will:
+
+1. turn off
+2. wait 2 seconds
+3. blink 5 times
+4. turn off
+
 ---
 Back to the [Index](00-index.md)!

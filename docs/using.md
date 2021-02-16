@@ -8,7 +8,9 @@ I am not going into details.  There's enough online on how to use these things. 
 4. Turn on tracker
 5. Use camera (focus, test shots, exposures etc)
 
-Note I turn on the tracker BEFORE using the camera.  This minimizes star trails from the beginning and makes staying on target easier.  Also, from what I am reading / hearing from folks at 200mm and a comercial low end tracker you'll get 20s to 30s shots.  Be prepared to try out a lot of things to dial it in!  It's doing its job if you can do a longer exposure with this than untracked.
+Note I turn on the tracker BEFORE using the camera.  This minimizes star trails from the beginning and makes staying on target easier.  Also, from what I am reading / hearing from folks at 200mm and a comercial low end tracker you'll get 20s to 30s shots.  What you can get depends greatly on polar alignment and correct configuration of the tracker.  Be prepared to try out a lot of things to dial it in!
+
+It's doing its job if you can do a longer exposure with this than untracked.
 
 When done for the night:
 
@@ -16,6 +18,8 @@ When done for the night:
 2. Unmount camera and take flats (in whichever order works for you)
 4. Setup to take darks
 5. While taking darks, take tracker off tripod and cleanup / stow gear
+
+
 
 ---
 Back to the [Index](00-index.md)!
