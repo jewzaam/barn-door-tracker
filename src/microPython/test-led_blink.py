@@ -14,7 +14,7 @@ def blink(timer):
 
 t=Timer()
 try:
-    t.init(freq=1, mode=Timer.PERIODIC, period=0, callback=blink)
+    t.init(freq=1, mode=Timer.PERIODIC, period=5000, callback=blink)
     time.sleep(1000)
 finally:
     led.off()

@@ -1,6 +1,6 @@
 {
   "debug": false,
-  "start_locked": true,
+  "start_locked": false,
   "gp_out": {
     "v5": 18,
     "led": 25,
