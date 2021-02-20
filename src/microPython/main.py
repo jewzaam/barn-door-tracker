@@ -78,8 +78,10 @@ def startup():
         pins_in[key]=pin
 
     # initialize input handlers
-    pins_in['forward'].irq(trigger=Pin.IRQ_FALLING, handler=handle_up)
-    pins_in['stop'].irq(trigger=Pin.IRQ_FALLING, handler=handle_down)
+    # since stop is disabled, forward is also disabled
+    #pins_in['forward'].irq(trigger=Pin.IRQ_FALLING, handler=handle_up)
+    # turns out it's SUPER annoying to have this stop when tuning speed.. removing for now
+    #pins_in['stop'].irq(trigger=Pin.IRQ_FALLING, handler=handle_down)
     pins_in['faster'].irq(trigger=Pin.IRQ_FALLING, handler=handle_left)
     pins_in['slower'].irq(trigger=Pin.IRQ_FALLING, handler=handle_right)
     pins_in['lock'].irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=handle_center)

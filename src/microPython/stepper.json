@@ -48,7 +48,7 @@
     "status_blink_hz": 3
   },
   "tracker": {
-    "radius": 200,
+    "radius": 197.9,
     "pitch": 1.27,
     "gear_ratio": "10:43"
   },

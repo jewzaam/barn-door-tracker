@@ -81,7 +81,7 @@ gear10_shaft_flat_width=3.1;
 
 gear10_shaft_height=6;
 
-gear10_set_screw_diameter=4;
+gear10_set_screw_diameter=3.7;
 
 
 /* [Compass] */
