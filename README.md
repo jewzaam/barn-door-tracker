@@ -6,6 +6,12 @@ All docs are in `docs/` and there is an [Index](docs/00-index.md).  My goal is t
 
 Clear Skies!
 
+## Tracker Explained
+
+Posted an 8 min video giving an overview of my setup.
+
+[![Barn Door Tracker Overview](images/tracker-video.png)](https://youtu.be/gP029RHcJ4Q)
+
 ## Tracker in Action
 ![Tracker in Action](images/barn-door-tracker.jpg)
 All setup and ready to go.  Battery on left leg, intervalometer on right, and 15 lb weight in the backpack.
